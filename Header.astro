@@ -1,0 +1,220 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site, telHref, hasWhatsapp, whatsappHref, TODO } from '../data/site';
+
+const path = Astro.url.pathname;
+const sede = site.sedi[0];
+const nav = [
+  { href: '/patenti/', label: 'Patenti' },
+  ...(site.servizi.rinnovo.attivo ? [{ href: '/rinnovo-patente/', label: 'Rinnovo' }] : []),
+  { href: '/preventivo/', label: 'Preventivo' },
+  { href: '/per-i-genitori/', label: 'Genitori' },
+  { href: '/chi-siamo/', label: 'Chi siamo' },
+  { href: site.sedi.length === 1 ? `/sedi/${sede.slug}/` : '/#sedi', label: site.sedi.length === 1 ? 'Sede' : 'Sedi' },
+  { href: '/contatti/', label: 'Contatti' },
+];
+const isActive = (href: string) => href !== '/' && path.startsWith(href.replace(/#.*$/, ''));
+---
+
+<header class="header">
+  <div class="container header__bar">
+    <Logo />
+
+    <nav class="header__nav" aria-label="Menu principale">
+      <ul role="list">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <a
+        class="btn btn--sm header__wa"
+        href={whatsappHref('Ciao! Vorrei informazioni.')}
+        data-wa={hasWhatsapp ? undefined : 'placeholder'}
+        target={hasWhatsapp ? '_blank' : undefined}
+        rel={hasWhatsapp ? 'noopener' : undefined}
+      >
+        <Icon name="chat" />
+        <span class="btn__label">
+          <span>WhatsApp</span>
+          {!hasWhatsapp && <span class="btn__todo">{TODO}</span>}
+        </span>
+      </a>
+      <button
+        class="header__menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu-mobile"
+        data-menu-toggle
+      >
+        <Icon name="menu" class="i-open" />
+        <Icon name="x" class="i-close" />
+        <span class="sr-only">Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu-mobile bg-ink" id="menu-mobile" data-menu>
+    <nav class="container" aria-label="Menu mobile">
+      <ul role="list">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+                <Icon name="arrow-right" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="menu-mobile__cta">
+        <a class="btn" href={telHref}><Icon name="phone" /> Chiama {site.telefono}</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: var(--cream);
+    border-bottom: var(--border);
+  }
+  .header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--header-h);
+  }
+  .header__nav {
+    display: none;
+  }
+  .header__nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .header__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 0.7rem;
+    border-radius: var(--radius-pill);
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .header__nav a:hover {
+    background: var(--cream-deep);
+  }
+  .header__nav a[aria-current='page'] {
+    background: var(--lime);
+    box-shadow: inset 0 0 0 2px var(--ink);
+  }
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .header__wa {
+    padding-inline: 0.8em;
+    gap: 0.45em;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .header__wa .btn__todo {
+    font-size: 0.625rem;
+    margin-top: 0.15em;
+  }
+  .header__menu-btn {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    background: var(--white);
+    border: var(--border);
+    border-radius: 14px;
+    color: var(--ink);
+  }
+  .header__menu-btn :global(.i-close),
+  .header__menu-btn[aria-expanded='true'] :global(.i-open) {
+    display: none;
+  }
+  .header__menu-btn[aria-expanded='true'] :global(.i-close) {
+    display: block;
+  }
+
+  /* Senza JavaScript il menu resta chiuso: tutti i link sono anche nel footer */
+  :global(html:not(.js)) .header__menu-btn {
+    display: none;
+  }
+  .menu-mobile {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    display: none;
+    border-top: var(--border);
+    border-bottom: var(--border);
+    padding-block: var(--space-5) var(--space-6);
+  }
+  .menu-mobile.is-open {
+    display: block;
+  }
+  .menu-mobile ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .menu-mobile li + li {
+    border-top: 1px solid rgb(255 255 255 / 0.18);
+  }
+  .menu-mobile a:not(.btn) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .menu-mobile a[aria-current='page'] {
+    color: var(--lime);
+  }
+  .menu-mobile__cta {
+    margin-top: var(--space-5);
+  }
+
+  @media (max-width: 379.98px) {
+    .header :global(.logo__mark) {
+      display: none;
+    }
+  }
+  @media (min-width: 1120px) {
+    .header__nav {
+      display: block;
+    }
+    .header__menu-btn,
+    .menu-mobile {
+      display: none !important;
+    }
+  }
+</style>

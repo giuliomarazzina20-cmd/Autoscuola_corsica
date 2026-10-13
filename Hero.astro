@@ -1,0 +1,178 @@
+---
+import Bollino from '../Bollino.astro';
+import WhatsAppButton from '../WhatsAppButton.astro';
+import Icon from '../Icon.astro';
+import Todo from '../Todo.astro';
+import { site, anniAttivita } from '../../data/site';
+
+const g = site.google;
+const ind = site.sedi[0].indirizzo;
+const via = ind.charAt(0).toLowerCase() + ind.slice(1);
+---
+
+<section class="hero bg-forest" aria-labelledby="hero-title">
+  <div class="container hero__inner">
+    <div class="hero__title-wrap">
+      <div class="hero__text">
+        <p class="eyebrow hero__eyebrow">
+          <Icon name="pin" /> {site.citta} · {site.zona}
+        </p>
+        <h1 id="hero-title" class="display-hero hero__title">
+          Prendi la patente. <span class="hl">Zero</span> giri a vuoto.
+        </h1>
+      </div>
+      <Bollino class="hero__bollino" />
+    </div>
+
+    <p class="lead hero__lead">
+      {site.quartieri.join(', ')}: patenti, rinnovi e duplicati in {via}. Tradizione dal {site.annoFondazione}.
+    </p>
+
+    <div class="btn-row hero__ctas">
+      <WhatsAppButton label="Scrivici ora" size="lg" />
+      <a class="btn btn--cream btn--lg" href="/preventivo/#modulo">
+        <Icon name="pencil" /> Pre-iscriviti in 1 minuto
+      </a>
+    </div>
+
+    <p class="hero__proof">
+      <span class="hero__stars" aria-hidden="true">
+        <Icon name="star" />
+      </span>
+      {
+        g.mediaStelle ? (
+          <span>
+            <strong>{g.mediaStelle.toLocaleString('it-IT')}/5</strong> su Google
+            {g.numeroRecensioni && <> · {g.numeroRecensioni} recensioni</>}
+          </span>
+        ) : (
+          <span>
+            Stelle Google <Todo />
+          </span>
+        )
+      }
+      <span class="hero__sep" aria-hidden="true">·</span>
+      <span>{anniAttivita} anni di attività</span>
+    </p>
+  </div>
+
+  <svg class="hero__lane" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 20H1440" />
+  </svg>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2rem, 1rem + 4vw, 5rem) clamp(4.5rem, 3rem + 5vw, 7rem);
+  }
+  .hero__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+    /* A tutto schermo su mobile (meno header, banner e barra fissa) */
+    min-height: calc(100svh - var(--header-h) - var(--mobilebar-h) - 30px);
+  }
+  .hero__eyebrow {
+    padding: 0.4em 0.9em;
+    line-height: 1.25;
+    border: 2px solid var(--lime);
+    border-radius: var(--radius-pill);
+    color: var(--lime);
+  }
+  .hero__eyebrow :global(.icon) {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .hero__title-wrap {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+  .hero__text {
+    display: grid;
+    gap: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+    justify-items: start;
+  }
+  .hero__title {
+    max-width: 11.5ch;
+    color: var(--white);
+  }
+  /* Mobile: il bollino sta accanto all'etichetta e alla prima riga del titolo */
+  .hero__title-wrap :global(.hero__bollino) {
+    position: absolute;
+    right: -4px;
+    top: -18px;
+    --size: 96px;
+  }
+  .hero__eyebrow {
+    max-width: calc(100% - 100px);
+  }
+  .hero__lead {
+    color: var(--cream-soft);
+  }
+  .hero__proof {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35em 0.6em;
+    font-size: var(--fs-small);
+    font-weight: 650;
+    color: var(--cream-soft);
+  }
+  .hero__stars {
+    display: inline-flex;
+    gap: 2px;
+    color: var(--lime);
+  }
+  .hero__stars :global(.icon) {
+    width: 18px;
+    height: 18px;
+  }
+  .hero__lane {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22px;
+    width: 100%;
+    height: 40px;
+  }
+  .hero__lane path {
+    stroke: var(--lime);
+    stroke-width: 6;
+    stroke-dasharray: 48 36;
+    opacity: 0.35;
+    fill: none;
+  }
+
+  @media (min-width: 560px) {
+    .hero__title-wrap :global(.hero__bollino) {
+      position: static;
+      --size: 132px;
+      margin-top: 0.4rem;
+    }
+    .hero__eyebrow {
+      max-width: none;
+    }
+  }
+  @media (min-width: 900px) {
+    .hero__inner {
+      min-height: min(78vh, 760px);
+    }
+    .hero__title-wrap {
+      justify-content: flex-start;
+      gap: var(--space-6);
+    }
+    .hero__title {
+      max-width: 12ch;
+    }
+    .hero__title-wrap :global(.hero__bollino) {
+      --size: 168px;
+      margin-top: 1rem;
+    }
+  }
+</style>

@@ -1,0 +1,15 @@
+---
+/** Riquadro colorato al posto di una foto non ancora fornita */
+interface Props {
+  subject: string;
+  ratio?: string;
+  bg?: 'cream' | 'lime' | 'white' | 'coral';
+  class?: string;
+}
+const { subject, ratio = '4 / 3', bg = 'cream', class: className = '' } = Astro.props;
+const bgVar = { cream: 'var(--cream-deep)', lime: 'var(--lime)', white: 'var(--white)', coral: 'var(--coral)' }[bg];
+---
+
+<div class:list={['photo-ph', className]} style={`--ratio:${ratio};--ph-bg:${bgVar}`} role="img" aria-label={`Segnaposto foto: ${subject}`}>
+  <span>[FOTO: {subject}]</span>
+</div>

@@ -1,0 +1,131 @@
+---
+/** Striscia scorrevole lenta con patenti e servizi (solo transform, pausa disponibile) */
+import Icon from '../Icon.astro';
+import { site } from '../../data/site';
+
+const items = [
+  ...site.patenti.map((p) => `Patente ${p.codice}`),
+  ...(site.servizi.rinnovo.attivo ? [site.servizi.rinnovo.nome] : []),
+  ...(site.servizi.duplicato.attivo ? [site.servizi.duplicato.nome] : []),
+];
+---
+
+<div class="marquee-clip">
+<div class="marquee" data-marquee>
+  <div class="marquee__band">
+    <div class="marquee__track" aria-hidden="true">
+      {
+        [0, 1].map(() => (
+          <ul role="list">
+            {items.map((t) => (
+              <li>
+                <span>{t}</span>
+                <Icon name="spark" />
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+    <p class="sr-only">Patenti e servizi: {items.join(', ')}.</p>
+    <button type="button" class="marquee__toggle" data-marquee-toggle aria-pressed="false">
+      <Icon name="pause" class="i-pause" />
+      <Icon name="play" class="i-play" />
+      <span class="sr-only">Metti in pausa la striscia scorrevole</span>
+    </button>
+  </div>
+</div>
+</div>
+
+<style>
+  .marquee-clip {
+    position: relative;
+    z-index: 3;
+    overflow-x: clip;
+  }
+  .marquee {
+    position: relative;
+    z-index: 3;
+    width: 110%;
+    margin: -34px 0 -26px -5%;
+    transform: rotate(-2deg);
+  }
+  .marquee__band {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--lime);
+    color: var(--ink);
+    border-block: var(--border);
+    overflow: hidden;
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
+  .marquee ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0.85rem 0;
+  }
+  .marquee li {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding-right: 1.1rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.375rem, 1.1rem + 1.2vw, 2rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .marquee li :global(.icon) {
+    width: 0.8em;
+    height: 0.8em;
+    color: var(--forest);
+  }
+  .marquee__toggle {
+    position: absolute;
+    right: calc(5% / 1.1 + var(--gutter));
+    display: grid;
+    place-items: center;
+    width: var(--tap);
+    height: var(--tap);
+    border: var(--border);
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--ink);
+  }
+  .marquee__toggle :global(.icon) {
+    width: 20px;
+    height: 20px;
+  }
+  .marquee__toggle :global(.i-play),
+  .marquee__toggle[aria-pressed='true'] :global(.i-pause) {
+    display: none;
+  }
+  .marquee__toggle[aria-pressed='true'] :global(.i-play) {
+    display: block;
+  }
+  .marquee.is-paused .marquee__track,
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+    .marquee__toggle {
+      display: none;
+    }
+  }
+</style>

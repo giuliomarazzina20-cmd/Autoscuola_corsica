@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Genitori from '../components/Genitori.astro';
+import ComeFunziona from '../components/ComeFunziona.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Icon from '../components/Icon.astro';
+import { site, telHref } from '../data/site';
+
+const faq = site.faq.filter((f) => /costa|tempo|documenti|dove/i.test(f.domanda));
+---
+
+<BaseLayout
+  title="Per i genitori"
+  fullTitle={`Patente per tuo figlio a ${site.citta}: info per i genitori | ${site.nome}`}
+  description={`Costi su preventivo, sicurezza e pagamenti: le risposte di ${site.nome} (${site.citta}, tradizione dal ${site.annoFondazione}) per i genitori di chi prende la patente.`}
+>
+  <PageHero
+    eyebrow="Per i genitori"
+    icon="users"
+    title="Tuo figlio prende la patente? Respira."
+    hl="Respira"
+    lead={`Insegniamo a guidare dal ${site.annoFondazione}. Qui trovi le risposte che cercano di più mamme e papà.`}
+    bg="lime"
+  >
+    <div class="btn-row">
+      <a class="btn btn--ink btn--lg" href={telHref}><Icon name="phone" /> Chiama {site.telefono}</a>
+    </div>
+  </PageHero>
+
+  <Genitori asPage />
+  <ComeFunziona />
+  {faq.length > 0 && <Faq items={faq} />}
+  <ClosingCta
+    title="Parliamone con calma."
+    hl="calma"
+    text="Chiamaci o scrivici: ti spieghiamo percorso, costi e tempi prima di iscrivere tuo figlio."
+    message="Ciao! Sono un genitore e vorrei informazioni sulla patente per mio figlio."
+  />
+</BaseLayout>

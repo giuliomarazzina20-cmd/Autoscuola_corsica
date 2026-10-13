@@ -1,0 +1,76 @@
+---
+/** Chiusura a tutta larghezza sul colore primario con titolo enorme e WhatsApp */
+import WhatsAppButton from './WhatsAppButton.astro';
+import Icon from './Icon.astro';
+import { site, telHref } from '../data/site';
+import { highlight } from '../lib/text';
+
+interface Props {
+  title?: string;
+  hl?: string;
+  text?: string;
+  message?: string;
+}
+const {
+  title = 'Pronto a mettere la prima?',
+  hl = 'prima',
+  text = 'Scrivici: ti diciamo come iniziare, quanto costa e quando puoi partire.',
+  message,
+} = Astro.props;
+---
+
+<section class="section bg-forest closing" aria-labelledby="closing-title">
+  <div class="container closing__inner">
+    <h2 class="display-hero closing__title" id="closing-title" set:html={highlight(title, hl)} />
+    <p class="lead closing__text">{text}</p>
+    <div class="btn-row">
+      <WhatsAppButton label="Scrivici ora" size="lg" message={message} />
+      <a class="btn btn--cream btn--lg" href={telHref}>
+        <Icon name="phone" /> {site.telefono}
+      </a>
+    </div>
+  </div>
+  <svg class="closing__lane" viewBox="0 0 200 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M100 0V1000"></path>
+  </svg>
+</section>
+
+<style>
+  .closing {
+    overflow: hidden;
+  }
+  .closing__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+  .closing__title {
+    max-width: 12ch;
+  }
+  .closing__text {
+    color: var(--cream-soft);
+  }
+  .closing__lane {
+    display: none;
+    position: absolute;
+    right: 6%;
+    top: 0;
+    width: 90px;
+    height: 100%;
+  }
+  .closing__lane path {
+    stroke: var(--lime);
+    stroke-width: 10;
+    stroke-dasharray: 60 44;
+    fill: none;
+    opacity: 0.25;
+    vector-effect: non-scaling-stroke;
+  }
+  @media (min-width: 760px) {
+    .closing__lane {
+      display: block;
+    }
+  }
+</style>

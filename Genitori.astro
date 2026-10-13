@@ -1,0 +1,105 @@
+---
+/** "Per i genitori": 3 risposte rassicuranti su fondo inchiostro + pulsante Chiama */
+import Icon from './Icon.astro';
+import Todo from './Todo.astro';
+import { site, telHref } from '../data/site';
+
+interface Props {
+  asPage?: boolean;
+}
+const { asPage = false } = Astro.props;
+---
+
+<section class="section bg-ink gen" aria-labelledby="gen-title">
+  <div class="container">
+    <div class="section__head">
+      <p class="eyebrow"><Icon name="users" /> Per i genitori</p>
+      <h2 class="h2" id="gen-title">
+        {asPage ? <>Tre risposte, <span class="hl">subito</span></> : <>Mamma, papà: <span class="hl">tutto chiaro</span></>}
+      </h2>
+      <p class="lead muted">Le domande che ci fate più spesso quando accompagnate un figlio a iscriversi.</p>
+    </div>
+
+    <ul class="gen__grid" role="list">
+      {
+        site.genitori.map((g) => (
+          <li class="card card--forest gen__card">
+            <span class="gen__icon" aria-hidden="true">
+              <Icon name={g.icona} />
+            </span>
+            <h3 class="h3">{g.titolo}</h3>
+            <p>
+              {g.testo}
+              {g.todo && (
+                <>
+                  {' '}
+                  <Todo note={g.todo} />
+                </>
+              )}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="btn-row gen__cta">
+      <a class="btn btn--lg" href={telHref}>
+        <Icon name="phone" /> Chiama {site.telefono}
+      </a>
+      {!asPage && (
+        <a class="link gen__more" href="/per-i-genitori/">
+          Tutte le info per i genitori <Icon name="arrow-right" />
+        </a>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .gen__grid {
+    display: grid;
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .gen__card {
+    --card-shadow: var(--lime);
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    border-color: var(--lime);
+  }
+  .gen__icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    background: var(--lime);
+    color: var(--ink);
+    border: var(--border);
+    border-radius: 50%;
+    transform: rotate(-8deg);
+  }
+  .gen__icon :global(.icon) {
+    width: 30px;
+    height: 30px;
+  }
+  .gen__cta {
+    margin-top: var(--space-7);
+  }
+  .gen__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: var(--tap);
+  }
+  .gen__more :global(.icon) {
+    width: 1.1em;
+  }
+  @media (min-width: 860px) {
+    .gen__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

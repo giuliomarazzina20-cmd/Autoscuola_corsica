@@ -1,0 +1,81 @@
+---
+/**
+ * Banner dell'anteprima (solo con demo: true) e barra annunci
+ * (solo se site.promozione è compilata: una sola promozione vera).
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const promo = site.promozione;
+---
+
+{
+  site.demo && (
+    <div class="demo-banner" role="note">
+      <p class="container">Anteprima dimostrativa del nuovo sito di {site.nome}</p>
+    </div>
+  )
+}
+
+{
+  promo && (
+    <div class="announce bg-lime" data-announce>
+      <div class="container announce__inner">
+        <p>
+          <Icon name="spark" />
+          <span>{promo.testo}</span>
+          {promo.link && (
+            <a href={promo.link}>{promo.linkTesto ?? 'Scopri di più'}</a>
+          )}
+        </p>
+        <button type="button" class="announce__close" data-announce-close>
+          <Icon name="x" />
+          <span class="sr-only">Chiudi l'annuncio</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+<style>
+  .demo-banner {
+    background: var(--ink);
+    color: var(--cream);
+    font-size: var(--fs-xs);
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    text-align: center;
+    padding-block: 6px;
+  }
+  .announce {
+    border-bottom: var(--border);
+    font-weight: 700;
+    font-size: var(--fs-small);
+  }
+  .announce__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: 48px;
+  }
+  .announce p {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .announce a {
+    color: var(--ink);
+  }
+  .announce__close {
+    display: grid;
+    place-items: center;
+    width: var(--tap);
+    height: var(--tap);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+  }
+</style>

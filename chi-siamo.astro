@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Numeri from '../components/home/Numeri.astro';
+import PhotoPh from '../components/PhotoPh.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Icon from '../components/Icon.astro';
+import Todo from '../components/Todo.astro';
+import { site, anniAttivita } from '../data/site';
+---
+
+<BaseLayout
+  title="Chi siamo"
+  fullTitle={`Chi siamo: tradizione dal ${site.annoFondazione} | ${site.nome} ${site.citta}`}
+  description={`${site.nome} insegna a guidare dal ${site.annoFondazione}; oggi ci trovi in ${site.sedi[0].indirizzo}, ${site.citta} (${site.zona}). Scopri chi siamo e cosa ci rende diversi.`}
+>
+  <PageHero
+    eyebrow="Chi siamo"
+    icon="steering"
+    title={`Al volante dal ${site.annoFondazione}`}
+    hl={String(site.annoFondazione)}
+    lead={`Da ${anniAttivita} anni insegniamo a guidare. L'obiettivo non è cambiato: farti partire bene.`}
+    bg="ink"
+    bollino
+  />
+
+  <section class="section bg-cream" aria-labelledby="forza-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow muted">Perché noi</p>
+        <h2 class="h2" id="forza-title">Cosa ci rende <span class="hl">noi</span></h2>
+      </div>
+      <ul class="forza" role="list">
+        {
+          site.puntiDiForza.map((f, i) => (
+            <li class:list={['card', 'card--hover', i % 2 ? 'card--lime' : '']}>
+              <span class="forza__icon" aria-hidden="true">
+                <Icon name={f.icona} />
+              </span>
+              <h3 class="h3">{f.titolo}</h3>
+              {f.testo && <p>{f.testo}</p>}
+              {!f.confermato && (
+                <p>
+                  <Todo note="punto di forza da confermare" />
+                </p>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <Numeri />
+
+  <section class="section bg-lime" aria-labelledby="team-title">
+    <div class="container team">
+      <div class="team__text">
+        <p class="eyebrow">Lo staff</p>
+        <h2 class="h2" id="team-title">Le persone <span class="hl">dietro</span> il volante</h2>
+        {
+          site.staff.length ? (
+            <ul class="team__list" role="list">
+              {site.staff.map((s) => (
+                <li>
+                  <strong>{s.nome}</strong> · {s.ruolo}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              <Todo note="nomi e ruoli dello staff" />
+            </p>
+          )
+        }
+        {site.ragioneSociale && <p class="team__legal">{site.ragioneSociale}</p>}
+      </div>
+      <PhotoPh subject="lo staff davanti alla sede" bg="white" ratio="5 / 4" />
+    </div>
+  </section>
+
+  <ClosingCta />
+</BaseLayout>
+
+<style>
+  .forza {
+    display: grid;
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .forza li {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+  .forza__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: var(--border);
+    border-radius: 50%;
+    background: var(--coral);
+    color: var(--ink);
+  }
+  .forza__icon :global(.icon) {
+    width: 28px;
+    height: 28px;
+  }
+  .team {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+  .team__text {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .team__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .team__legal {
+    font-size: var(--fs-small);
+    font-weight: 650;
+  }
+  @media (min-width: 760px) {
+    .forza {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .forza {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (min-width: 900px) {
+    .team {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

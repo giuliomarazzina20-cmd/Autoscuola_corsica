@@ -1,0 +1,238 @@
+---
+/**
+ * "Come funziona": 4 tappe lungo una strada disegnata in SVG.
+ * La strada si "disegna" con lo scroll (transform/opacity via --road, impostata da main.ts).
+ * Senza JS o con movimento ridotto la strada è già completa.
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+interface Props {
+  bg?: 'lime' | 'cream';
+}
+const { bg = 'lime' } = Astro.props;
+
+const tappe = [
+  { icona: 'pencil', titolo: 'Pre-iscriviti', testo: 'Lasci i tuoi dati online in un minuto oppure passi in sede.' },
+  { icona: 'book', titolo: 'Studia la teoria', testo: 'Lezioni in sede e allenamento sui quiz, fino all’esame di teoria.' },
+  { icona: 'steering', titolo: 'Mettiti alla guida', testo: `Guide pratiche con l’istruttore, nel traffico vero di ${site.citta}.` },
+  { icona: 'flag', titolo: 'Esame e via', testo: 'Superi l’esame di guida e la patente è tua.' },
+];
+---
+
+<section class:list={['section', `bg-${bg}`, 'come']} aria-labelledby="come-title">
+  <div class="container">
+    <div class="section__head">
+      <p class="eyebrow">Come funziona</p>
+      <h2 class="h2" id="come-title">Quattro tappe, <span class="hl">zero</span> sorprese</h2>
+    </div>
+
+    <div class="road" data-road>
+      <svg class="road__h" viewBox="0 0 1200 120" aria-hidden="true" focusable="false">
+        <path class="road__asphalt" d="M-20 70C120 20 280 20 450 60s330 50 450 10 250-40 320 0"></path>
+        <path class="road__dash" d="M-20 70C120 20 280 20 450 60s330 50 450 10 250-40 320 0"></path>
+        <rect class="road__cover" x="-10" y="0" width="1240" height="120"></rect>
+      </svg>
+      <div class="road__v" aria-hidden="true">
+        <svg viewBox="0 0 40 100" preserveAspectRatio="none" focusable="false">
+          <path class="road__asphalt" d="M20 0V100"></path>
+          <path class="road__dash" d="M20 0V100"></path>
+        </svg>
+        <span class="road__cover-v"></span>
+      </div>
+
+      <ol class="tappe" role="list">
+        {
+          tappe.map((t, i) => (
+            <li class="tappa" style={`--i:${i}`}>
+              <span class="tappa__num" aria-hidden="true">
+                {i + 1}
+              </span>
+              <div class="tappa__body">
+                <h3 class="tappa__title">
+                  <span class="sr-only">Tappa {i + 1}: </span>
+                  {t.titolo}
+                </h3>
+                <p>{t.testo}</p>
+                {i === 1 && site.simulatoreQuiz && (
+                  <p>
+                    <a class="link" href={site.simulatoreQuiz} target="_blank" rel="noopener">
+                      Allenati con il simulatore quiz <span class="sr-only">(si apre in una nuova scheda)</span>
+                    </a>
+                  </p>
+                )}
+              </div>
+              <span class="tappa__icon" aria-hidden="true">
+                <Icon name={t.icona} />
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .road {
+    --road: 1;
+    position: relative;
+  }
+  .road__h {
+    display: none;
+  }
+  .road__asphalt {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 44;
+    stroke-linecap: round;
+  }
+  .road__dash {
+    fill: none;
+    stroke: var(--lime);
+    stroke-width: 5;
+    stroke-dasharray: 26 22;
+    stroke-linecap: round;
+  }
+  .bg-lime .road__dash {
+    stroke: var(--cream);
+  }
+
+  /* La strada si scopre spostando una "copertura" del colore di fondo (solo transform) */
+  .road__cover {
+    fill: var(--bg);
+    transform: translateX(calc(var(--road) * 1240px));
+  }
+  .road__cover-v {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    transform: translateY(calc(var(--road) * 100%));
+  }
+
+  /* Mobile: strada verticale a sinistra */
+  .road__v {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 40px;
+    overflow: hidden;
+  }
+  .road__v svg {
+    width: 100%;
+    height: 100%;
+  }
+  .road__v path {
+    vector-effect: non-scaling-stroke;
+  }
+  .road__v .road__asphalt {
+    stroke-width: 34;
+    stroke-linecap: butt;
+  }
+  .road__v .road__dash {
+    stroke-width: 4;
+    stroke-dasharray: 16 14;
+    stroke-linecap: butt;
+  }
+
+  .tappe {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 64px;
+    display: grid;
+    gap: var(--space-5);
+  }
+  .tappa {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-4);
+    align-items: start;
+    background: var(--white);
+    color: var(--ink);
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-5);
+  }
+  .tappa__num {
+    position: absolute;
+    left: -64px;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    background: var(--coral);
+    color: var(--ink);
+    border: var(--border);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+  }
+  .tappa__title {
+    font-size: var(--fs-h3);
+    margin-bottom: var(--space-2);
+  }
+  .tappa__icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    background: var(--lime);
+    border: var(--border);
+    border-radius: 14px;
+    transform: rotate(6deg);
+  }
+  .bg-lime .tappa__icon {
+    background: var(--cream);
+  }
+  .tappa__icon :global(.icon) {
+    width: 26px;
+    height: 26px;
+  }
+  /* Le tappe compaiono man mano che la strada avanza (solo opacity/transform) */
+  .road.is-drawing .tappa {
+    opacity: clamp(0.001, calc((var(--road) - var(--i) * 0.2) * 6), 1);
+  }
+
+  @media (min-width: 900px) {
+    .road__v {
+      display: none;
+    }
+    .road__h {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-bottom: calc(var(--space-5) * -1);
+    }
+    .tappe {
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0;
+      gap: var(--space-5);
+    }
+    .tappa {
+      grid-template-columns: 1fr;
+      padding-top: var(--space-7);
+    }
+    .tappa__num {
+      left: 50%;
+      top: -22px;
+      margin: 0 0 0 -24px;
+      width: 48px;
+      height: 48px;
+      font-size: 1.5rem;
+    }
+    .tappa__icon {
+      position: absolute;
+      right: var(--space-4);
+      top: var(--space-4);
+    }
+    .tappa__title {
+      padding-right: 3rem;
+    }
+  }
+</style>

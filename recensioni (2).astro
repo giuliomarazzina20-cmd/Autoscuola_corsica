@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Recensioni from '../components/Recensioni.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Todo from '../components/Todo.astro';
+import { site } from '../data/site';
+
+const g = site.google;
+---
+
+<BaseLayout
+  title="Recensioni"
+  fullTitle={`Recensioni di ${site.nome} a ${site.citta}`}
+  description={`Le recensioni reali di chi ha preso la patente con ${site.nome}, autoscuola a ${site.citta}. Lascia anche la tua.`}
+>
+  <PageHero
+    eyebrow="Recensioni"
+    icon="star"
+    title="Cosa dice chi è già partito"
+    hl="partito"
+    lead="Solo recensioni vere, con nome e fonte."
+    bg="lime"
+  >
+    <p class="rating">
+      {
+        g.mediaStelle ? (
+          <>
+            <strong>{g.mediaStelle.toLocaleString('it-IT')}/5</strong> su Google
+            {g.numeroRecensioni && <> · {g.numeroRecensioni} recensioni</>}
+          </>
+        ) : (
+          <>
+            Media stelle Google: <Todo />
+          </>
+        )
+      }
+      {
+        g.scheda ? (
+          <>
+            {' · '}
+            <a href={g.scheda} target="_blank" rel="noopener">
+              Vedi la scheda Google
+            </a>
+          </>
+        ) : (
+          <>
+            {' · '}Scheda Google: <Todo />
+          </>
+        )
+      }
+    </p>
+  </PageHero>
+  <Recensioni showHead={false} />
+  <ClosingCta />
+</BaseLayout>
+
+<style>
+  .rating {
+    font-weight: 650;
+  }
+</style>

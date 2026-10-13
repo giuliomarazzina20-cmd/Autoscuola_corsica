@@ -1,0 +1,153 @@
+---
+/**
+ * Recensioni reali in carosello orizzontale (scroll-snap CSS, nessuna libreria).
+ * Senza recensioni: segnaposto visibili solo in demo, sezione nascosta in produzione.
+ */
+import Icon from './Icon.astro';
+import Todo from './Todo.astro';
+import { site, TODO } from '../data/site';
+
+interface Props {
+  showHead?: boolean;
+}
+const { showHead = true } = Astro.props;
+const reviews = site.recensioni;
+const show = reviews.length > 0 || site.demo;
+const link = site.google.linkRecensione;
+---
+
+{
+  show && (
+    <section class="section bg-cream rec" aria-labelledby="rec-title">
+      <div class="container">
+        {showHead ? (
+          <div class="section__head rec__head">
+            <p class="eyebrow muted">Recensioni</p>
+            <h2 class="h2" id="rec-title">
+              Parola di chi è <span class="hl">già</span> partito
+            </h2>
+          </div>
+        ) : (
+          <h2 class="sr-only" id="rec-title">
+            Recensioni
+          </h2>
+        )}
+
+        <ul class="carousel" role="list" tabindex="0" aria-label="Recensioni, scorri in orizzontale">
+          {reviews.length > 0
+            ? reviews.map((r) => (
+                <li class="card rev">
+                  <Icon name="quote" class="rev__q" />
+                  {r.stelle && (
+                    <p class="rev__stars">
+                      <span class="sr-only">{r.stelle} stelle su 5</span>
+                      <span aria-hidden="true">{'★'.repeat(r.stelle)}</span>
+                    </p>
+                  )}
+                  <blockquote>
+                    <p>{r.testo}</p>
+                  </blockquote>
+                  <p class="rev__who">
+                    <strong>{r.nome}</strong> · {r.fonte}
+                  </p>
+                </li>
+              ))
+            : [1, 2, 3].map((n) => (
+                <li class="card rev rev--ph">
+                  <Icon name="quote" class="rev__q" />
+                  <p>
+                    <Todo note={`recensione reale n. ${n}: testo, nome e fonte`} />
+                  </p>
+                  <p class="rev__who">
+                    <strong>Nome</strong> · Fonte
+                  </p>
+                </li>
+              ))}
+        </ul>
+
+        <div class="btn-row rec__cta">
+          {link ? (
+            <a class="btn btn--ink" href={link} target="_blank" rel="noopener">
+              <Icon name="star" /> Lascia una recensione
+              <span class="sr-only">(si apre in una nuova scheda)</span>
+            </a>
+          ) : (
+            <a class="btn btn--ink" href="#recensione" data-todo-link>
+              <Icon name="star" />
+              <span class="btn__label">
+                <span>Lascia una recensione</span>
+                <span class="btn__todo">{TODO}</span>
+              </span>
+            </a>
+          )}
+          <p class="muted rec__hint" aria-hidden="true">
+            Scorri <Icon name="arrow-right" />
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .carousel {
+    display: flex;
+    gap: var(--space-5);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--space-1);
+    list-style: none;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: var(--space-2) var(--gutter) var(--space-5);
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) transparent;
+  }
+  .carousel:focus-visible {
+    outline-offset: -3px;
+  }
+  .rev {
+    flex: 0 0 min(86%, 380px);
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .rev:nth-child(3n + 2) {
+    --card-bg: var(--lime);
+  }
+  .rev:nth-child(3n) {
+    transform: rotate(0.6deg);
+  }
+  .rev :global(.rev__q) {
+    width: 40px;
+    height: 40px;
+    color: var(--forest);
+  }
+  .rev blockquote {
+    margin: 0;
+    font-size: var(--fs-lead);
+    font-weight: 550;
+  }
+  .rev__who {
+    margin-top: auto;
+    font-size: var(--fs-small);
+  }
+  .rev__stars {
+    color: var(--ink);
+    letter-spacing: 0.1em;
+  }
+  .rec__cta {
+    margin-top: var(--space-5);
+    justify-content: space-between;
+  }
+  .rec__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 700;
+  }
+  .rec__hint :global(.icon) {
+    width: 1.1em;
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import TopBars from '../components/TopBars.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+import { site } from '../data/site';
+
+interface Props {
+  /** Title unico della pagina (senza il nome del brand, che viene aggiunto) */
+  title: string;
+  description: string;
+  /** Title completo già pronto: sostituisce la composizione automatica */
+  fullTitle?: string;
+  jsonLd?: Record<string, unknown>[];
+  ogImage?: string;
+}
+
+const { title, description, fullTitle, jsonLd = [], ogImage = '/og.png' } = Astro.props;
+const pageTitle = fullTitle ?? `${title} | ${site.nome} ${site.citta}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.dominio).href;
+const og = new URL(ogImage, Astro.site ?? site.dominio).href;
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {site.demo && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="preload" href="/fonts/bricolage-grotesque-800.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#0f5c4d" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:site_name" content={site.nome} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.nome}, autoscuola a ${site.citta}, ${site.zona}, tradizione dal ${site.annoFondazione}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    {jsonLd.map((d) => <script type="application/ld+json" set:html={JSON.stringify(d)} />)}
+  </head>
+  <body class="has-mobilebar">
+    <a class="skip-link" href="#contenuto">Salta al contenuto</a>
+    <TopBars />
+    <Header />
+    <main id="contenuto" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <MobileBar />
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </body>
+</html>

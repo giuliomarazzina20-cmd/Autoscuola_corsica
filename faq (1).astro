@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Domande frequenti"
+  fullTitle={`Domande frequenti sulla patente | ${site.nome} ${site.citta}`}
+  description={`Orari, patenti, costi, rinnovo e duplicato: le risposte alle domande più frequenti su ${site.nome}, ${site.sedi[0].indirizzo}, ${site.citta}.`}
+>
+  <PageHero
+    eyebrow="FAQ"
+    icon="info"
+    title="Domande? Risposte dritte."
+    hl="dritte"
+    lead="Le domande che ci fanno più spesso, in breve. Se manca la tua, scrivici."
+    bg="forest"
+  />
+  <Faq heading={false} />
+  <ClosingCta title="Non hai trovato la risposta?" hl="risposta" />
+</BaseLayout>

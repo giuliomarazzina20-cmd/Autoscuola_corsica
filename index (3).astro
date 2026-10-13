@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import PatentiGrid from '../../components/PatentiGrid.astro';
+import QuizPatente from '../../components/tools/QuizPatente.astro';
+import ComeFunziona from '../../components/ComeFunziona.astro';
+import ClosingCta from '../../components/ClosingCta.astro';
+import Todo from '../../components/Todo.astro';
+import { site } from '../../data/site';
+---
+
+<BaseLayout
+  title="Tutte le patenti"
+  fullTitle={`Patenti a ${site.citta}: ${site.patenti.map((p) => p.codice).join(', ')} | ${site.nome}`}
+  description={`Tutte le patenti di ${site.nome} a ${site.citta} (${site.zona}): ${site.patenti.map((p) => `${p.codice} (${p.veicolo.toLowerCase()})`).join(', ')}. Scegli la tua e chiedi un preventivo.`}
+>
+  <PageHero
+    eyebrow="Patenti"
+    icon="idcard"
+    title="Dalla moto all'autobus"
+    hl="autobus"
+    lead="Scegli la categoria che ti serve: per ognuna trovi una pagina con requisiti, percorso e preventivo."
+    bg="forest"
+  >
+    {!site.patentiConfermate && <p><Todo note="elenco patenti da confermare con il titolare" /></p>}
+  </PageHero>
+  <PatentiGrid variant="list" />
+  {site.requisiti.length > 0 && <QuizPatente />}
+  <ComeFunziona />
+  <ClosingCta />
+</BaseLayout>

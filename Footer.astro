@@ -1,0 +1,196 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import Todo from './Todo.astro';
+import { site, telHref } from '../data/site';
+
+const sede = site.sedi[0];
+const anno = new Date().getFullYear();
+---
+
+<footer class="footer bg-ink">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <Logo inverse />
+      <p class="footer__claim">Tradizione dal {site.annoFondazione}.</p>
+      <address>
+        {
+          site.sedi.map((s) => (
+            <p>
+              {s.indirizzo}, {s.cap} {s.citta}
+              {!s.capConfermato && (
+                <>
+                  {' '}
+                  <Todo note="CAP" />
+                </>
+              )}
+            </p>
+          ))
+        }
+        <p><a href={telHref}>{site.telefono}</a></p>
+        <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+      </address>
+    </div>
+
+    <nav class="footer__col" aria-label="Patenti">
+      <h2 class="footer__title">Patenti</h2>
+      <ul role="list">
+        {
+          site.patenti.map((p) => (
+            <li>
+              <a href={`/patenti/${p.slug}/`}>Patente {p.codice}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav class="footer__col" aria-label="Servizi e informazioni">
+      <h2 class="footer__title">Servizi</h2>
+      <ul role="list">
+        {site.servizi.rinnovo.attivo && <li><a href="/rinnovo-patente/">Rinnovo patente</a></li>}
+        {site.servizi.duplicato.attivo && <li><a href="/duplicato-patente/">Duplicato patente</a></li>}
+        <li><a href="/preventivo/">Preventivo e pre-iscrizione</a></li>
+        <li><a href="/per-i-genitori/">Per i genitori</a></li>
+        <li><a href="/chi-siamo/">Chi siamo</a></li>
+        <li><a href="/recensioni/">Recensioni</a></li>
+        <li><a href="/faq/">Domande frequenti</a></li>
+        <li><a href={`/sedi/${sede.slug}/`}>La sede</a></li>
+        <li><a href="/contatti/">Contatti</a></li>
+      </ul>
+    </nav>
+
+    <div class="footer__col">
+      <h2 class="footer__title">Segreteria</h2>
+      <dl class="footer__hours">
+        {
+          site.orari.righe.map((r) => (
+            <div>
+              <dt>{r.giorni}</dt>
+              <dd>{r.confermato ? r.fasce.join(' · ') : <Todo />}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      {
+        site.social.facebook && (
+          <p class="footer__social">
+            <a href={site.social.facebook} rel="noopener" target="_blank">
+              Facebook <Icon name="arrow-up-right" />
+              <span class="sr-only">(si apre in una nuova scheda)</span>
+            </a>
+          </p>
+        )
+      }
+    </div>
+  </div>
+
+  <div class="container footer__legal">
+    <p>
+      © {anno} {site.ragioneSociale || <Todo note="ragione sociale" />} · P.IVA {site.partitaIva || <Todo />}
+    </p>
+    <ul role="list">
+      <li><a href="/privacy-policy/">Privacy policy</a></li>
+      <li><a href="/cookie-policy/">Cookie policy</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: var(--space-8) var(--space-6);
+    font-size: var(--fs-small);
+  }
+  .footer a {
+    color: var(--white);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .footer a:hover {
+    color: var(--lime);
+    text-decoration: underline;
+  }
+  .footer__grid {
+    display: grid;
+    gap: var(--space-7) var(--space-6);
+    grid-template-columns: 1fr;
+  }
+  .footer__claim {
+    margin-block: var(--space-4);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--lime);
+  }
+  address {
+    font-style: normal;
+    display: grid;
+    gap: var(--space-1);
+    color: var(--cream-soft);
+  }
+  .footer__title {
+    font-size: 1.125rem;
+    margin-bottom: var(--space-3);
+    color: var(--lime);
+  }
+  .footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0;
+  }
+  .footer li a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+  .footer__hours {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0 0 var(--space-4);
+  }
+  .footer__hours dt {
+    font-weight: 750;
+  }
+  .footer__hours dd {
+    margin: 0;
+    color: var(--cream-soft);
+  }
+  .footer__social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    min-height: var(--tap);
+  }
+  .footer__social :global(.icon) {
+    width: 1.1em;
+    height: 1.1em;
+  }
+  .footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid rgb(255 255 255 / 0.2);
+    color: var(--cream-soft);
+  }
+  .footer__legal ul {
+    display: flex;
+    gap: var(--space-5);
+  }
+  @media (min-width: 640px) {
+    .footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1000px) {
+    .footer__grid {
+      grid-template-columns: 1.4fr 1fr 1.2fr 1.2fr;
+    }
+  }
+</style>

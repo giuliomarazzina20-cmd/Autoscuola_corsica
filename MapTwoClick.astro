@@ -1,0 +1,93 @@
+---
+/**
+ * Mappa a due click: nessuna risorsa di terze parti viene caricata
+ * finché l'utente non lo chiede due volte (mostra → carica).
+ */
+import Icon from './Icon.astro';
+import { mappaEmbed, indicazioniHref, type Sede } from '../data/site';
+
+interface Props {
+  sede: Sede;
+}
+const { sede } = Astro.props;
+---
+
+<div class="map" data-map data-src={mappaEmbed(sede)} data-title={`Mappa: ${sede.indirizzo}, ${sede.citta}`}>
+  <div class="map__cover" data-map-cover>
+    <Icon name="map" class="map__icon" />
+    <p class="map__title">{sede.indirizzo}, {sede.citta}</p>
+    <button type="button" class="btn btn--white btn--sm" data-map-step1>
+      Mostra la mappa
+    </button>
+    <div class="map__consent" data-map-consent hidden>
+      <p>
+        La mappa è fornita da Google Maps: caricandola, Google riceve dati come il tuo indirizzo IP e può usare
+        cookie. <a href="/cookie-policy/">Cookie policy</a>
+      </p>
+      <button type="button" class="btn btn--sm" data-map-load>Carica la mappa di Google</button>
+    </div>
+    <p class="map__alt">
+      <a href={indicazioniHref(sede)} target="_blank" rel="noopener">
+        Oppure apri Google Maps <span class="sr-only">(si apre in una nuova scheda)</span>
+      </a>
+    </p>
+  </div>
+</div>
+
+<style>
+  .map {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border: var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 30% 40%, rgb(16 35 30 / 0.08) 0 2px, transparent 3px) 0 0 / 22px 22px,
+      var(--cream-deep);
+  }
+  .map__cover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    text-align: center;
+    color: var(--ink);
+    --focus-color: var(--ink);
+    --link: var(--forest);
+  }
+  .map__cover :global(.map__icon) {
+    width: 44px;
+    height: 44px;
+  }
+  .map__title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    line-height: 1.1;
+  }
+  .map__consent {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    max-width: 30rem;
+    font-size: var(--fs-small);
+  }
+  .map__alt {
+    font-size: var(--fs-small);
+  }
+  .map__alt a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+  .map :global(.map__frame) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+</style>

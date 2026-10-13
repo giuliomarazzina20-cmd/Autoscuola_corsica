@@ -1,0 +1,113 @@
+---
+/**
+ * Strumento 2 · "Il tuo percorso stimato"
+ * Usa SOLO le durate di site.tempi. Se è vuoto lo strumento non viene mostrato.
+ */
+import Icon from '../Icon.astro';
+import { site } from '../../data/site';
+
+interface Props {
+  bg?: 'cream' | 'forest' | 'lime' | 'ink';
+}
+const { bg = 'cream' } = Astro.props;
+
+const tempi = site.tempi.filter((t) => site.patenti.some((p) => p.slug === t.patente));
+const show = tempi.length > 0;
+const data = {
+  tempi,
+  patenti: Object.fromEntries(site.patenti.map((p) => [p.slug, p.codice])),
+};
+---
+
+{
+  show && (
+    <section class:list={['section', `bg-${bg}`, 'tool']} id="percorso" aria-labelledby="percorso-title">
+      <div class="container">
+        <div class="section__head">
+          <p class="eyebrow muted">
+            <Icon name="spark" /> Strumento
+          </p>
+          <h2 class="h2" id="percorso-title">
+            Il tuo percorso <span class="hl">stimato</span>
+          </h2>
+          <p class="lead muted">Scegli la patente e quante guide riesci a fare a settimana.</p>
+        </div>
+
+        <form class="card tool__card" data-percorso>
+          <fieldset class="choices">
+            <legend>Quale patente?</legend>
+            {tempi.map((t, i) => (
+              <label class="choice">
+                <input type="radio" name="patente" value={t.patente} checked={i === 0} />
+                Patente {data.patenti[t.patente]}
+              </label>
+            ))}
+          </fieldset>
+          <fieldset class="choices">
+            <legend>Quante guide a settimana puoi fare?</legend>
+            {site.guidePerSettimana.map((n, i) => (
+              <label class="choice">
+                <input type="radio" name="guide" value={n} checked={i === 1} />
+                {n} {n === 1 ? 'guida' : 'guide'}
+              </label>
+            ))}
+          </fieldset>
+
+          <div class="tool__result" data-percorso-result aria-live="polite">
+            <ol class="timeline" role="list" data-percorso-list />
+            <p class="tool__big" data-percorso-total />
+          </div>
+          <p class="tool__note">
+            <Icon name="info" /> Stima indicativa: i tempi dipendono anche dalle date d'esame.
+          </p>
+        </form>
+        <script type="application/json" data-percorso-data set:html={JSON.stringify(data)} />
+      </div>
+    </section>
+  )
+}
+
+<script>
+  import { readJson } from '../../scripts/wa';
+
+  type Tempo = { patente: string; fasi: { nome: string; settimane: number }[]; guideIndicative: number };
+  type Data = { tempi: Tempo[]; patenti: Record<string, string> };
+
+  document.querySelectorAll<HTMLFormElement>('[data-percorso]').forEach((form) => {
+    const data = readJson<Data>(form.parentElement!, '[data-percorso-data]');
+    const list = form.querySelector<HTMLOListElement>('[data-percorso-list]')!;
+    const total = form.querySelector<HTMLElement>('[data-percorso-total]')!;
+    if (!data) return;
+
+    const sett = (n: number) => `${n} ${n === 1 ? 'settimana' : 'settimane'}`;
+    const render = () => {
+      const fd = new FormData(form);
+      const t = data.tempi.find((x) => x.patente === fd.get('patente'));
+      const perWeek = Number(fd.get('guide')) || 1;
+      if (!t) return;
+      const steps: [string, string][] = t.fasi.map((f) => [f.nome, sett(f.settimane)]);
+      let weeks = t.fasi.reduce((s, f) => s + f.settimane, 0);
+      if (t.guideIndicative > 0) {
+        const g = Math.ceil(t.guideIndicative / perWeek);
+        steps.push([`Guide pratiche (${perWeek} a settimana)`, `circa ${sett(g)}`]);
+        weeks += g;
+      }
+      steps.push(['Esame di guida', 'secondo le date disponibili']);
+      list.replaceChildren(
+        ...steps.map(([name, dur], i) => {
+          const li = document.createElement('li');
+          const b = document.createElement('strong');
+          b.textContent = `${i + 1}. ${name}`;
+          const s = document.createElement('span');
+          s.textContent = dur;
+          li.append(b, s);
+          return li;
+        }),
+      );
+      total.textContent = `Patente ${data.patenti[t.patente]}: circa ${sett(weeks)}`;
+    };
+    form.addEventListener('change', render);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    render();
+  });
+</script>

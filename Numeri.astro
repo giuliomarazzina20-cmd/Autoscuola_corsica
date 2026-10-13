@@ -1,0 +1,66 @@
+---
+/** Numeri in grande: solo quelli forniti in site.numeri */
+import { site } from '../../data/site';
+const numeri = site.numeri;
+---
+
+{
+  numeri.length > 0 && (
+    <section class="section bg-ink numeri" aria-labelledby="numeri-title">
+      <div class="container">
+        <div class="section__head">
+          <h2 class="h2" id="numeri-title">
+            Numeri <span class="nowrap"><span class="hl">veri</span>,</span> niente fuffa
+          </h2>
+        </div>
+        <ul class="numeri__list" role="list">
+          {numeri.map((n) => (
+            <li class="numeri__item">
+              <p class="numeri__value">
+                <span aria-hidden="true" data-count={n.valore} data-from={n.anno ? 1900 : 0}>
+                  {n.valore}
+                </span>
+                <span class="sr-only">{n.valore}</span>
+              </p>
+              <p class="numeri__label">{n.etichetta}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .numeri__list {
+    display: grid;
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .numeri__item {
+    border-top: 2px solid var(--lime);
+    padding-top: var(--space-4);
+  }
+  .numeri__value {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(5rem, 3rem + 10vw, 11rem);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    color: var(--lime);
+    font-variant-numeric: tabular-nums;
+  }
+  .numeri__label {
+    margin-top: var(--space-3);
+    font-size: var(--fs-lead);
+    font-weight: 650;
+    max-width: 18ch;
+  }
+  @media (min-width: 760px) {
+    .numeri__list {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+  }
+</style>

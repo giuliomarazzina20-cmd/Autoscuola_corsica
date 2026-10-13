@@ -1,0 +1,34 @@
+---
+/** Pagina legale: contiene solo il segnaposto finché il testo non viene fornito da un professionista */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from './PageHero.astro';
+import ClosingCta from './ClosingCta.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  hl: string;
+  description: string;
+}
+const { title, hl, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <PageHero eyebrow={site.ragioneSociale || site.nome} icon="doc" title={title} hl={hl} bg="ink" />
+  <section class="section bg-cream">
+    <div class="container prose">
+      <p class="legal-ph">[TESTO DA INSERIRE: informativa fornita da un professionista]</p>
+    </div>
+  </section>
+  <ClosingCta title="Domande? Chiedi pure." hl="Chiedi" />
+</BaseLayout>
+
+<style>
+  .legal-ph {
+    padding: var(--space-6);
+    border: 2px dashed var(--ink);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    font-weight: 750;
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import InfoCards from '../components/InfoCards.astro';
+import ChecklistDocumenti from '../components/tools/ChecklistDocumenti.astro';
+import PreIscrizioneForm from '../components/PreIscrizioneForm.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import Icon from '../components/Icon.astro';
+import { site, telHref } from '../data/site';
+
+const d = site.servizi.duplicato;
+const casi = [
+  { icona: 'alert', titolo: 'Smarrita', testo: 'Non trovi più la patente? Ti aiutiamo con il duplicato per smarrimento.' },
+  { icona: 'shield', titolo: 'Rubata', testo: 'Te l’hanno rubata? Seguiamo noi la pratica di duplicato per furto.' },
+  { icona: 'copy', titolo: 'Rovinata', testo: 'Tessera rotta o illeggibile? Si chiede il duplicato per deterioramento.' },
+].filter((_, i) => d.casi[i]);
+---
+
+<BaseLayout
+  title={`Duplicato patente a ${site.citta}`}
+  fullTitle={`Duplicato patente a ${site.citta}: smarrimento, furto, deterioramento | ${site.nome}`}
+  description={`Duplicato della patente per ${d.casi.join(', ')}: ${site.nome}, ${site.sedi[0].indirizzo}, ${site.citta} (${site.zona}). Chiama il ${site.telefono}.`}
+>
+  <PageHero
+    eyebrow="Duplicato patente"
+    icon="copy"
+    title="Patente persa? Niente panico."
+    hl="panico"
+    lead={`Duplicato per ${d.casi.join(', ')}: vieni in sede e ti seguiamo nella pratica.`}
+    bg="lime"
+  >
+    <div class="btn-row">
+      <a class="btn btn--ink btn--lg" href={telHref}><Icon name="phone" /> Chiama {site.telefono}</a>
+      <WhatsAppButton label="Scrivici" variant="white" message="Ciao! Mi serve il duplicato della patente." />
+    </div>
+  </PageHero>
+
+  <InfoCards title="Cosa ti è successo?" hl="successo" items={casi} />
+
+  <ChecklistDocumenti servizi={['duplicato']} />
+
+  <section class="section bg-white" aria-label="Richiesta di duplicato">
+    <div class="container narrow">
+      <PreIscrizioneForm patente="duplicato" title="Chiedi il duplicato" />
+    </div>
+  </section>
+
+  <ClosingCta title="Torna a guidare, in regola." hl="regola" message="Ciao! Mi serve il duplicato della patente." />
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+</style>

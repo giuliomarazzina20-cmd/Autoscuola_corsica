@@ -1,0 +1,109 @@
+---
+/**
+ * Strumento 3 · "Cosa ti serve per..."
+ * Checklist spuntabile dei documenti (da site.documenti) e invio dell'elenco su WhatsApp.
+ * Senza documenti: segnaposto visibile solo in demo, niente in produzione.
+ */
+import Icon from '../Icon.astro';
+import Todo from '../Todo.astro';
+import { site, hasWhatsapp, TODO } from '../../data/site';
+
+type Key = 'iscrizione' | 'rinnovo' | 'duplicato';
+interface Props {
+  servizi?: Key[];
+  bg?: 'cream' | 'lime' | 'white';
+}
+const { servizi = ['iscrizione', 'rinnovo', 'duplicato'], bg = 'lime' } = Astro.props;
+const nomi: Record<Key, string> = { iscrizione: 'Iscrizione', rinnovo: 'Rinnovo', duplicato: 'Duplicato' };
+const disponibili = servizi.filter((k) => site.documenti[k].length > 0);
+const show = disponibili.length > 0 || site.demo;
+const uid = servizi.join('-');
+---
+
+{
+  show && (
+    <section class:list={['section', `bg-${bg}`, 'tool']} aria-labelledby={`doc-title-${uid}`}>
+      <div class="container">
+        <div class="section__head">
+          <p class="eyebrow">
+            <Icon name="doc" /> Strumento
+          </p>
+          <h2 class="h2" id={`doc-title-${uid}`}>
+            Cosa ti <span class="hl">serve</span> per…
+          </h2>
+          <p class="lead">Spunta quello che hai già e fatti mandare l’elenco su WhatsApp.</p>
+        </div>
+
+        {disponibili.length === 0 ? (
+          <div class="card tool__card">
+            <p class="h3 display">Checklist documenti</p>
+            <p>
+              <Todo note={`elenco documenti per ${servizi.map((k) => nomi[k].toLowerCase()).join(', ')} confermato dal titolare`} />
+            </p>
+          </div>
+        ) : (
+          <form class="card tool__card" data-check data-wa-number={site.whatsapp}>
+            {disponibili.length > 1 && (
+              <fieldset class="choices">
+                <legend>Per cosa?</legend>
+                {disponibili.map((k, i) => (
+                  <label class="choice">
+                    <input type="radio" name="servizio" value={k} checked={i === 0} />
+                    {nomi[k]}
+                  </label>
+                ))}
+              </fieldset>
+            )}
+            {disponibili.map((k, i) => (
+              <fieldset class="check__list" data-list={k} data-name={nomi[k]} hidden={i !== 0}>
+                <legend class="h3">Documenti per: {nomi[k].toLowerCase()}</legend>
+                {site.documenti[k].map((d) => (
+                  <label class="checkbox check__item">
+                    <input type="checkbox" value={d} />
+                    <span>{d}</span>
+                  </label>
+                ))}
+              </fieldset>
+            ))}
+            <p class="tool__progress" data-check-progress aria-live="polite" />
+            <div class="btn-row">
+              <a class="btn btn--ink" href="#whatsapp" data-check-send data-wa={hasWhatsapp ? undefined : 'placeholder'}>
+                <Icon name="chat" />
+                <span class="btn__label">
+                  <span>Mandamela su WhatsApp</span>
+                  {!hasWhatsapp && <span class="btn__todo">{TODO}</span>}
+                </span>
+              </a>
+            </div>
+          </form>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<script>
+  import { setWaLink } from '../../scripts/wa';
+
+  document.querySelectorAll<HTMLFormElement>('[data-check]').forEach((form) => {
+    const lists = Array.from(form.querySelectorAll<HTMLFieldSetElement>('[data-list]'));
+    const progress = form.querySelector<HTMLElement>('[data-check-progress]')!;
+    const send = form.querySelector<HTMLAnchorElement>('[data-check-send]')!;
+    const number = form.dataset.waNumber ?? '';
+
+    const current = () => lists.find((l) => !l.hidden) ?? lists[0];
+    const update = () => {
+      const sel = (form.querySelector<HTMLInputElement>('input[name="servizio"]:checked')?.value) ?? lists[0].dataset.list;
+      lists.forEach((l) => (l.hidden = l.dataset.list !== sel));
+      const list = current();
+      const boxes = Array.from(list.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+      const done = boxes.filter((b) => b.checked).length;
+      progress.textContent = `${done} di ${boxes.length} documenti pronti`;
+      const lines = boxes.map((b) => `${b.checked ? '✅' : '⬜'} ${b.value}`);
+      setWaLink(send, number, `Ciao! Documenti per ${list.dataset.name?.toLowerCase()}:\n${lines.join('\n')}`);
+    };
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  });
+</script>

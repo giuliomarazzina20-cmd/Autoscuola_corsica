@@ -1,0 +1,10 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { site } from '../data/site';
+---
+
+<LegalPage
+  title="Privacy policy"
+  hl="Privacy"
+  description={`Informativa sul trattamento dei dati personali di ${site.nome}${site.ragioneSociale ? ` (${site.ragioneSociale})` : ''}.`}
+/>

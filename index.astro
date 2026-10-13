@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import Marquee from '../components/home/Marquee.astro';
+import PatentiGrid from '../components/PatentiGrid.astro';
+import QuizPatente from '../components/tools/QuizPatente.astro';
+import ComeFunziona from '../components/ComeFunziona.astro';
+import PercorsoStimato from '../components/tools/PercorsoStimato.astro';
+import Numeri from '../components/home/Numeri.astro';
+import Recensioni from '../components/Recensioni.astro';
+import Genitori from '../components/Genitori.astro';
+import SedeCard from '../components/SedeCard.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import { site } from '../data/site';
+import { sedeSchema } from '../lib/schema';
+---
+
+<BaseLayout
+  title="Home"
+  fullTitle={`${site.nome} ${site.citta} | Patente in ${site.zona.toLowerCase()}, tradizione dal ${site.annoFondazione}`}
+  description={`Autoscuola a ${site.citta} in ${site.sedi[0].indirizzo} (${site.zona.toLowerCase()}), tradizione dal ${site.annoFondazione}: patenti ${site.patenti.map((p) => p.codice).join(', ')}, rinnovo e duplicato. Scrivici o pre-iscriviti in un minuto.`}
+  jsonLd={site.sedi.map(sedeSchema)}
+>
+  <Hero />
+  <Marquee />
+  <PatentiGrid />
+  {site.requisiti.length > 0 && <QuizPatente />}
+  <ComeFunziona />
+  {site.tempi.length > 0 && <PercorsoStimato />}
+  {site.numeri.length > 0 && <Numeri />}
+  <Recensioni />
+  <Genitori />
+
+  <section class="section bg-lime" id="sedi" aria-labelledby="sedi-title">
+    <div class="container">
+      <div class="section__head">
+        <p class="eyebrow">{site.sedi.length === 1 ? 'La sede' : 'Le sedi'}</p>
+        <h2 class="h2" id="sedi-title">Passa a <span class="hl">trovarci</span></h2>
+      </div>
+      <div class="sedi">
+        {site.sedi.map((s) => <SedeCard sede={s} />)}
+      </div>
+    </div>
+  </section>
+
+  <Faq />
+  <ClosingCta />
+</BaseLayout>
+
+<style>
+  .sedi {
+    display: grid;
+    gap: var(--space-6);
+  }
+</style>

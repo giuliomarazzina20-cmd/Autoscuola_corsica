@@ -1,0 +1,81 @@
+---
+/**
+ * Barra fissa in basso su mobile: Chiama · WhatsApp · Iscriviti.
+ * Senza numero WhatsApp la seconda azione diventa "Indicazioni",
+ * così le azioni della barra sono sempre funzionanti.
+ */
+import Icon from './Icon.astro';
+import { site, telHref, hasWhatsapp, whatsappHref, indicazioniHref } from '../data/site';
+
+const middle = hasWhatsapp
+  ? { href: whatsappHref('Ciao! Vorrei informazioni sulla patente.'), icon: 'chat', label: 'WhatsApp', external: true }
+  : { href: indicazioniHref(site.sedi[0]), icon: 'route', label: 'Indicazioni', external: true };
+---
+
+<nav class="mobilebar" aria-label="Azioni rapide">
+  <a class="mobilebar__btn" href={telHref}>
+    <Icon name="phone" />
+    <span>Chiama</span>
+  </a>
+  <a class="mobilebar__btn" href={middle.href} target="_blank" rel="noopener">
+    <Icon name={middle.icon} />
+    <span>{middle.label}</span>
+    <span class="sr-only">(si apre in una nuova scheda)</span>
+  </a>
+  <a class="mobilebar__btn mobilebar__btn--main" href="/preventivo/#modulo">
+    <Icon name="pencil" />
+    <span>Iscriviti</span>
+  </a>
+</nav>
+
+<style>
+  .mobilebar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 70;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.25fr;
+    gap: var(--space-2);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    background: var(--cream);
+    border-top: var(--border);
+    --focus-color: var(--ink);
+  }
+  .mobilebar__btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 0.875rem;
+    line-height: 1.1;
+    text-decoration: none;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform var(--dur-fast) var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobilebar__btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--ink);
+    transition-duration: 0s;
+  }
+  .mobilebar__btn--main {
+    background: var(--lime);
+  }
+  .mobilebar :global(.icon) {
+    width: 22px;
+    height: 22px;
+  }
+  @media (min-width: 900px) {
+    .mobilebar {
+      display: none;
+    }
+  }
+</style>

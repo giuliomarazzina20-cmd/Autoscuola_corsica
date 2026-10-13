@@ -1,0 +1,134 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import PreIscrizioneForm from '../components/PreIscrizioneForm.astro';
+import SedeCard from '../components/SedeCard.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import Icon from '../components/Icon.astro';
+import Todo from '../components/Todo.astro';
+import { site, telHref, hasWhatsapp, whatsappHref, orariBreve } from '../data/site';
+import { sedeSchema } from '../lib/schema';
+---
+
+<BaseLayout
+  title="Contatti"
+  fullTitle={`Contatti: telefono, email e sede | ${site.nome} ${site.citta}`}
+  description={`Contatta ${site.nome}: telefono ${site.telefono}, email ${site.email}, sede in ${site.sedi[0].indirizzo}, ${site.citta}. Orari: ${orariBreve}.`}
+  jsonLd={site.sedi.map(sedeSchema)}
+>
+  <PageHero
+    eyebrow="Contatti"
+    icon="chat"
+    title="Chiama, scrivi o passa."
+    hl="passa"
+    lead={`Segreteria ${orariBreve}.`}
+    bg="forest"
+  />
+
+  <section class="section bg-cream" aria-labelledby="canali-title">
+    <div class="container">
+      <h2 class="sr-only" id="canali-title">Canali di contatto</h2>
+      <ul class="canali" role="list">
+        <li class="card card--hover canale">
+          <Icon name="phone" class="canale__icon" />
+          <h3 class="h3">Telefono</h3>
+          <a class="canale__link card-link" href={telHref}>{site.telefono}</a>
+        </li>
+        <li class="card card--hover card--lime canale">
+          <Icon name="chat" class="canale__icon" />
+          <h3 class="h3">WhatsApp</h3>
+          {
+            hasWhatsapp ? (
+              <a class="canale__link card-link" href={whatsappHref('Ciao!')} target="_blank" rel="noopener">
+                Scrivici su WhatsApp
+              </a>
+            ) : (
+              <p>
+                <a class="canale__link" href="#whatsapp" data-wa="placeholder">
+                  Scrivici su WhatsApp
+                </a>{' '}
+                <Todo />
+              </p>
+            )
+          }
+        </li>
+        <li class="card card--hover canale">
+          <Icon name="mail" class="canale__icon" />
+          <h3 class="h3">Email</h3>
+          <a class="canale__link card-link" href={`mailto:${site.email}`}>{site.email}</a>
+        </li>
+        {
+          site.social.facebook && (
+            <li class="card card--hover card--cream canale">
+              <Icon name="share" class="canale__icon" />
+              <h3 class="h3">Facebook</h3>
+              <a class="canale__link card-link" href={site.social.facebook} target="_blank" rel="noopener">
+                Seguici su Facebook <span class="sr-only">(si apre in una nuova scheda)</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section bg-white" aria-label="Modulo di contatto">
+    <div class="container narrow">
+      <PreIscrizioneForm title="Scrivici qui" />
+    </div>
+  </section>
+
+  <section class="section bg-lime" aria-labelledby="dove-title">
+    <div class="container">
+      <div class="section__head">
+        <h2 class="h2" id="dove-title">Dove <span class="hl">siamo</span></h2>
+      </div>
+      {site.sedi.map((s) => <SedeCard sede={s} />)}
+    </div>
+  </section>
+
+  <ClosingCta />
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+  .canali {
+    display: grid;
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .canale {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+  .canale :global(.canale__icon) {
+    width: 40px;
+    height: 40px;
+    color: var(--forest);
+    margin-bottom: var(--space-2);
+  }
+  .canale__link {
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 1.125rem;
+    overflow-wrap: anywhere;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+  @media (min-width: 700px) {
+    .canali {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .canali {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout
+  title="Pagina non trovata"
+  fullTitle={`Pagina non trovata | ${site.nome}`}
+  description={`Questa pagina non esiste o ha cambiato indirizzo. Torna alla home di ${site.nome}.`}
+>
+  <PageHero
+    eyebrow="Errore 404"
+    icon="route"
+    title="Hai sbagliato uscita."
+    hl="uscita"
+    lead="Questa pagina non esiste o ha cambiato corsia. Nessun problema: si fa inversione."
+    bg="lime"
+    badge="404"
+  >
+    <div class="btn-row">
+      <a class="btn btn--ink btn--lg" href="/"><Icon name="arrow-right" /> Torna alla home</a>
+      <a class="btn btn--white btn--lg" href="/patenti/">Vedi le patenti</a>
+    </div>
+  </PageHero>
+</BaseLayout>

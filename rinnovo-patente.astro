@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import InfoCards from '../components/InfoCards.astro';
+import ChecklistDocumenti from '../components/tools/ChecklistDocumenti.astro';
+import PreIscrizioneForm from '../components/PreIscrizioneForm.astro';
+import Faq from '../components/Faq.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import Icon from '../components/Icon.astro';
+import { site, orariBreve, telHref, TODO } from '../data/site';
+
+const r = site.servizi.rinnovo;
+const sede = site.sedi[0];
+const faq = site.faq.filter((f) => /rinnovo/i.test(f.domanda) || /documenti/i.test(f.domanda));
+const T = (n: string) => `${TODO.slice(0, -1)}: ${n}]`;
+---
+
+<BaseLayout
+  title={`Rinnovo patente a ${site.citta}`}
+  fullTitle={`Rinnovo patente a ${site.citta}, ${site.zona.toLowerCase()} | ${site.nome}`}
+  description={`Rinnovo della patente con ${site.nome}, ${sede.indirizzo}, ${site.citta}. Chiama il ${site.telefono} o scrivici.`}
+>
+  <PageHero
+    eyebrow="Rinnovo patente"
+    icon="refresh"
+    title="Patente scaduta? Si rinnova qui."
+    hl="rinnova"
+    lead={`${r.dettaglio} Passa in ${sede.indirizzo.charAt(0).toLowerCase() + sede.indirizzo.slice(1)} e rimetti in regola la tua patente.`}
+    bg="forest"
+  >
+    <div class="btn-row">
+      <a class="btn btn--lg" href={telHref}><Icon name="phone" /> Chiama {site.telefono}</a>
+      <WhatsAppButton label="Scrivici" variant="cream" message="Ciao! Vorrei rinnovare la patente." />
+    </div>
+  </PageHero>
+
+  <InfoCards
+    title="Il rinnovo in breve"
+    hl="in breve"
+    items={[
+      { icona: 'refresh', titolo: 'Come funziona', testo: r.dettaglio || T('come funziona il servizio di rinnovo') },
+      { icona: 'clock', titolo: 'Quando', testo: `Segreteria ${orariBreve}. ${r.orari || T('giorni e orari del servizio di rinnovo')}` },
+      { icona: 'euro', titolo: 'Quanto costa', testo: 'Su preventivo: chiedi e ti diciamo tutto prima.', link: { href: '/preventivo/', label: 'Chiedi il preventivo' } },
+    ]}
+  />
+
+  <ChecklistDocumenti servizi={['rinnovo']} />
+
+  <section class="section bg-white" aria-label="Richiesta di rinnovo">
+    <div class="container narrow">
+      <PreIscrizioneForm patente="rinnovo" title="Prenota il rinnovo" />
+    </div>
+  </section>
+
+  {faq.length > 0 && <Faq items={faq} />}
+
+  <ClosingCta title="Rinnovo? Ci pensiamo noi." hl="noi" message="Ciao! Vorrei rinnovare la patente." />
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+</style>

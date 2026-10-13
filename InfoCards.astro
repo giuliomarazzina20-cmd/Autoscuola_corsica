@@ -1,0 +1,103 @@
+---
+/** Blocco "In breve": card informative con icona, titolo e testo (con eventuali segnaposto) */
+import Icon from './Icon.astro';
+import { withTodo } from '../lib/text';
+
+interface Props {
+  items: { icona: string; titolo: string; testo: string; link?: { href: string; label: string } }[];
+  title?: string;
+  hl?: string;
+  eyebrow?: string;
+  bg?: 'cream' | 'lime' | 'ink' | 'forest';
+}
+const { items, title, hl, eyebrow, bg = 'cream' } = Astro.props;
+const id = `info-${Math.random().toString(36).slice(2, 8)}`;
+const tint = ['', 'card--lime', 'card--cream'];
+---
+
+<section class:list={['section', `bg-${bg}`]} aria-labelledby={title ? id : undefined}>
+  <div class="container">
+    {
+      title && (
+        <div class="section__head">
+          {eyebrow && <p class="eyebrow muted">{eyebrow}</p>}
+          <h2 class="h2" id={id}>
+            {hl && title.includes(hl) ? (
+              <>
+                {title.slice(0, title.indexOf(hl))}
+                <span class="hl">{hl}</span>
+                {title.slice(title.indexOf(hl) + hl.length)}
+              </>
+            ) : (
+              title
+            )}
+          </h2>
+        </div>
+      )
+    }
+    <ul class="info" role="list">
+      {
+        items.map((it, i) => (
+          <li class:list={['card', 'card--hover', 'info__card', bg === 'cream' ? tint[i % 3] : '']}>
+            <span class="info__icon" aria-hidden="true">
+              <Icon name={it.icona} />
+            </span>
+            <h3 class="h3">{it.titolo}</h3>
+            <p set:html={withTodo(it.testo)} />
+            {it.link && (
+              <a class="info__link" href={it.link.href}>
+                {it.link.label} <Icon name="arrow-right" />
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .info {
+    display: grid;
+    gap: var(--space-5);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .info__card {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+  .info__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: var(--border);
+    border-radius: 16px;
+    background: var(--white);
+    color: var(--ink);
+    transform: rotate(-6deg);
+  }
+  .info__icon :global(.icon) {
+    width: 28px;
+    height: 28px;
+  }
+  .info__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+    min-height: var(--tap);
+    color: inherit;
+    font-weight: 800;
+  }
+  .info__link :global(.icon) {
+    width: 1.1em;
+  }
+  @media (min-width: 760px) {
+    .info {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+  }
+</style>

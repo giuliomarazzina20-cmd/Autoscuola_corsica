@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import InfoCards from '../../components/InfoCards.astro';
+import ComeFunziona from '../../components/ComeFunziona.astro';
+import ChecklistDocumenti from '../../components/tools/ChecklistDocumenti.astro';
+import PercorsoStimato from '../../components/tools/PercorsoStimato.astro';
+import PreIscrizioneForm from '../../components/PreIscrizioneForm.astro';
+import PatentiGrid from '../../components/PatentiGrid.astro';
+import ClosingCta from '../../components/ClosingCta.astro';
+import WhatsAppButton from '../../components/WhatsAppButton.astro';
+import Icon from '../../components/Icon.astro';
+import Todo from '../../components/Todo.astro';
+import { site, TODO, type Patente } from '../../data/site';
+
+export function getStaticPaths() {
+  return site.patenti.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+
+const { p } = Astro.props as { p: Patente };
+const bg = ({ moto: 'lime', auto: 'forest', camion: 'ink', autobus: 'ink' } as const)[p.gruppo];
+const sede = site.sedi[0];
+
+const req = site.requisiti.find((r) => r.patente === p.slug);
+const tempo = site.tempi.find((t) => t.patente === p.slug);
+const prezzo = site.prezzi.soloPreventivo ? null : site.prezzi.patenti.find((x) => x.patente === p.slug);
+const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+
+const info = [
+  {
+    icona: 'idcard',
+    titolo: 'Requisiti',
+    testo: req ? `Età minima: ${req.etaMinima} anni.` : `${TODO.slice(0, -1)}: requisiti della patente ${p.codice} confermati dal titolare]`,
+  },
+  {
+    icona: 'clock',
+    titolo: 'Tempi',
+    testo: tempo
+      ? `${tempo.fasi.map((f) => `${f.nome}: circa ${f.settimane} settimane`).join('; ')}; poi le guide. Stima indicativa: i tempi dipendono anche dalle date d'esame.`
+      : `${TODO.slice(0, -1)}: tempi indicativi confermati dal titolare]`,
+  },
+  {
+    icona: 'euro',
+    titolo: 'Quanto costa',
+    testo: prezzo ? `Da ${euro(prezzo.da)}.` : 'Su preventivo, costruito sulle tue esigenze: chiedilo senza impegno.',
+    link: { href: '/preventivo/', label: 'Chiedi il preventivo' },
+  },
+];
+---
+
+<BaseLayout
+  title={`Patente ${p.codice}`}
+  fullTitle={`Patente ${p.codice} a ${site.citta}, ${site.zona.toLowerCase()} | ${site.nome}`}
+  description={`Patente ${p.codice} (${p.veicolo.toLowerCase()}) con ${site.nome} in ${sede.indirizzo}, ${site.citta} (${site.zona}): teoria, guide ed esame. Chiedi un preventivo o pre-iscriviti online.`}
+>
+  <PageHero
+    eyebrow={`${p.veicolo} · ${site.zona}`}
+    icon={p.icona}
+    title={`Patente ${p.codice} a ${site.citta}`}
+    hl={p.codice}
+    lead={`Teoria, guide ed esame per la patente ${p.codice}, in ${sede.indirizzo.charAt(0).toLowerCase() + sede.indirizzo.slice(1)}.`}
+    bg={bg}
+    badge={p.codice}
+  >
+    {!site.patentiConfermate && <p><Todo note="categoria da confermare con il titolare" /></p>}
+    <div class="btn-row">
+      <WhatsAppButton label="Scrivici ora" message={`Ciao! Vorrei informazioni sulla patente ${p.codice}.`} variant={bg === 'lime' ? 'white' : 'lime'} />
+      <a class="btn btn--cream" href="#modulo"><Icon name="pencil" /> Pre-iscriviti</a>
+    </div>
+  </PageHero>
+
+  <InfoCards title={`La patente ${p.codice} in breve`} hl="in breve" items={info} />
+
+  <ComeFunziona />
+
+  {tempo && <PercorsoStimato />}
+
+  <ChecklistDocumenti servizi={['iscrizione']} bg="cream" />
+
+  <section class="section bg-white" aria-label="Modulo di pre-iscrizione">
+    <div class="container narrow">
+      <PreIscrizioneForm patente={p.slug} title={`Pre-iscriviti alla patente ${p.codice}`} />
+    </div>
+  </section>
+
+  <PatentiGrid variant="others" exclude={p.slug} />
+
+  <ClosingCta
+    title={`Patente ${p.codice}? Si parte.`}
+    hl={p.codice}
+    message={`Ciao! Vorrei informazioni sulla patente ${p.codice}.`}
+  />
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+</style>

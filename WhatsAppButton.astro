@@ -1,0 +1,51 @@
+---
+/**
+ * Pulsante WhatsApp. Se il numero in site.ts è vuoto resta nel design
+ * con link segnaposto (#whatsapp) e la dicitura [DA COMPLETARE].
+ */
+import Icon from './Icon.astro';
+import { hasWhatsapp, whatsappHref, TODO } from '../data/site';
+
+interface Props {
+  label?: string;
+  message?: string;
+  variant?: 'lime' | 'cream' | 'white' | 'ink' | 'forest';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  label = 'Scrivici su WhatsApp',
+  message = 'Ciao! Vorrei informazioni sulla patente.',
+  variant = 'lime',
+  size = 'md',
+  class: className = '',
+} = Astro.props;
+
+const href = whatsappHref(message);
+---
+
+<a
+  class:list={[
+    'btn',
+    variant !== 'lime' && `btn--${variant}`,
+    size !== 'md' && `btn--${size}`,
+    className,
+  ]}
+  href={href}
+  data-wa={hasWhatsapp ? undefined : 'placeholder'}
+  target={hasWhatsapp ? '_blank' : undefined}
+  rel={hasWhatsapp ? 'noopener' : undefined}
+>
+  <Icon name="chat" />
+  {
+    hasWhatsapp ? (
+      <span>{label}</span>
+    ) : (
+      <span class="btn__label">
+        <span>{label}</span>
+        <span class="btn__todo">{TODO}</span>
+      </span>
+    )
+  }
+</a>

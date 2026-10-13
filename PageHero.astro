@@ -1,0 +1,104 @@
+---
+/** Hero delle pagine interne: colorata, più bassa, titolo enorme con evidenziatore */
+import Icon from './Icon.astro';
+import Bollino from './Bollino.astro';
+import { highlight } from '../lib/text';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  hl?: string;
+  lead?: string;
+  bg?: 'forest' | 'lime' | 'ink' | 'cream';
+  icon?: string;
+  bollino?: boolean;
+  badge?: string;
+}
+const { eyebrow, title, hl, lead, bg = 'forest', icon, bollino = false, badge } = Astro.props;
+---
+
+<section class:list={['phero', `bg-${bg}`]} aria-labelledby="page-title">
+  <div class="container phero__inner">
+    <div class="phero__text">
+      {
+        eyebrow && (
+          <p class="eyebrow phero__eyebrow">
+            {icon && <Icon name={icon} />} {eyebrow}
+          </p>
+        )
+      }
+      <h1 class="h1 phero__title" id="page-title" set:html={highlight(title, hl)} />
+      {lead && <p class="lead phero__lead">{lead}</p>}
+      <slot />
+    </div>
+    {bollino && <Bollino class="phero__bollino" color={bg === 'lime' ? 'cream' : 'coral'} />}
+    {
+      badge && (
+        <span class="phero__badge" aria-hidden="true">
+          {badge}
+        </span>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .phero {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem) clamp(3rem, 2rem + 4vw, 5.5rem);
+    border-bottom: var(--border);
+  }
+  .phero__inner {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+  .phero__text {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    max-width: 52rem;
+  }
+  .phero__eyebrow {
+    color: var(--fg-soft);
+  }
+  .bg-forest .phero__eyebrow,
+  .bg-ink .phero__eyebrow {
+    color: var(--lime);
+  }
+  .phero__eyebrow :global(.icon) {
+    width: 1.3em;
+    height: 1.3em;
+  }
+  .phero__lead {
+    color: var(--fg-soft);
+  }
+  .phero__inner :global(.phero__bollino) {
+    --size: 150px;
+    display: none;
+  }
+  .phero__badge {
+    position: absolute;
+    right: -0.05em;
+    bottom: -0.32em;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(9rem, 5rem + 18vw, 20rem);
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 3px var(--hl-bg);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  @media (min-width: 760px) {
+    .phero__inner :global(.phero__bollino) {
+      display: block;
+    }
+  }
+</style>

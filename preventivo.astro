@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CalcolaPacchetto from '../components/tools/CalcolaPacchetto.astro';
+import PreIscrizioneForm from '../components/PreIscrizioneForm.astro';
+import InfoCards from '../components/InfoCards.astro';
+import ClosingCta from '../components/ClosingCta.astro';
+import { site, orariBreve, telHref } from '../data/site';
+
+const calcolatore = !site.prezzi.soloPreventivo && site.prezzi.patenti.length > 0;
+---
+
+<BaseLayout
+  title="Preventivo e pre-iscrizione"
+  fullTitle={`Quanto costa la patente a ${site.citta}? Preventivo | ${site.nome}`}
+  description={`Chiedi il preventivo per la tua patente a ${site.nome}, ${site.citta}, e pre-iscriviti in un minuto. Prezzi chiari prima di iniziare.`}
+>
+  <PageHero
+    eyebrow="Preventivo"
+    icon="euro"
+    title="Quanto costa la tua patente?"
+    hl="costa"
+    lead={calcolatore
+      ? 'Calcola il tuo pacchetto e chiedi conferma, oppure pre-iscriviti subito.'
+      : 'Lavoriamo su preventivo: dicci cosa ti serve e ti rispondiamo con un prezzo chiaro, prima di iniziare.'}
+    bg="lime"
+  />
+
+  {calcolatore && <CalcolaPacchetto />}
+
+  <section class="section bg-cream" aria-label="Modulo di pre-iscrizione e preventivo">
+    <div class="container narrow">
+      <PreIscrizioneForm title="Pre-iscriviti o chiedi il preventivo" />
+    </div>
+  </section>
+
+  <InfoCards
+    title="Preferisci parlarne?"
+    hl="parlarne"
+    bg="ink"
+    items={[
+      { icona: 'phone', titolo: 'Chiamaci', testo: `${site.telefono}, ${orariBreve}.`, link: { href: telHref, label: 'Chiama ora' } },
+      { icona: 'mail', titolo: 'Scrivici', testo: site.email, link: { href: `mailto:${site.email}`, label: 'Manda un’email' } },
+      { icona: 'pin', titolo: 'Passa in sede', testo: `${site.sedi[0].indirizzo}, ${site.citta}.`, link: { href: `/sedi/${site.sedi[0].slug}/`, label: 'Come arrivare' } },
+    ]}
+  />
+
+  <ClosingCta />
+</BaseLayout>
+
+<style>
+  .narrow {
+    max-width: 52rem;
+  }
+</style>

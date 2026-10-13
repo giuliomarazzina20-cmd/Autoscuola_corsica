@@ -1,0 +1,319 @@
+---
+/**
+ * Modulo di pre-iscrizione.
+ * - demo: true → non invia nulla, mostra la conferma dell'anteprima
+ * - endpointModulo compilato → POST all'endpoint
+ * - endpoint vuoto → apre WhatsApp con i dati già scritti (o l'email se manca anche WhatsApp)
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+interface Props {
+  patente?: string;
+  title?: string;
+}
+const { patente: preset = '', title = 'Pre-iscriviti in 1 minuto' } = Astro.props;
+const servizi = [
+  ...(site.servizi.rinnovo.attivo ? [{ value: 'rinnovo', label: site.servizi.rinnovo.nome }] : []),
+  ...(site.servizi.duplicato.attivo ? [{ value: 'duplicato', label: site.servizi.duplicato.nome }] : []),
+];
+---
+
+<div class="card form-card" id="modulo">
+  <h2 class="h3 form-card__title">{title}</h2>
+  <p class="form-card__intro muted">Lasciaci nome e telefono: ti ricontattiamo per completare l’iscrizione. I campi con * sono obbligatori.</p>
+
+  <form
+    class="form"
+    method="post"
+    action={site.endpointModulo || undefined}
+    novalidate
+    data-form
+    data-demo={site.demo ? 'true' : 'false'}
+    data-endpoint={site.endpointModulo}
+    data-wa-number={site.whatsapp}
+    data-email={site.email}
+  >
+    <div class="form__summary" data-form-summary tabindex="-1" hidden>
+      <p><strong>Controlla questi campi:</strong></p>
+      <ul data-form-summary-list></ul>
+    </div>
+
+    <div class="field">
+      <label for="f-nome">Nome e cognome *</label>
+      <input id="f-nome" name="nome" type="text" autocomplete="name" required aria-describedby="f-nome-err" />
+      <p class="field__error" id="f-nome-err" hidden></p>
+    </div>
+
+    <div class="field">
+      <label for="f-tel">Telefono *</label>
+      <input
+        id="f-tel"
+        name="telefono"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel"
+        required
+        aria-describedby="f-tel-hint f-tel-err"
+      />
+      <p class="field__hint" id="f-tel-hint">Ti chiamiamo o ti scriviamo solo per la tua richiesta.</p>
+      <p class="field__error" id="f-tel-err" hidden></p>
+    </div>
+
+    <div class="form__row">
+      <div class="field">
+        <label for="f-patente">Patente o servizio *</label>
+        <select id="f-patente" name="patente" required aria-describedby="f-patente-err">
+          <option value="">Scegli…</option>
+          <optgroup label="Patenti">
+            {
+              site.patenti.map((p) => (
+                <option value={`Patente ${p.codice}`} selected={preset === p.slug}>
+                  Patente {p.codice} · {p.veicolo}
+                </option>
+              ))
+            }
+          </optgroup>
+          {
+            servizi.length > 0 && (
+              <optgroup label="Servizi">
+                {servizi.map((s) => (
+                  <option value={s.label} selected={preset === s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          }
+          <option value="Non lo so ancora">Non lo so ancora</option>
+        </select>
+        <p class="field__error" id="f-patente-err" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f-sede">Sede *</label>
+        <select id="f-sede" name="sede" required aria-describedby="f-sede-err">
+          {site.sedi.length > 1 && <option value="">Scegli…</option>}
+          {site.sedi.map((s) => <option value={`${s.nome} (${s.indirizzo})`}>{s.nome}</option>)}
+        </select>
+        <p class="field__error" id="f-sede-err" hidden></p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-msg">Messaggio <span class="muted">(facoltativo)</span></label>
+      <textarea id="f-msg" name="messaggio" rows="4" maxlength="1000"></textarea>
+    </div>
+
+    <!-- Honeypot anti-spam: nascosto a persone e screen reader -->
+    <div class="form__hp" aria-hidden="true">
+      <label for="f-sito">Lascia vuoto questo campo</label>
+      <input id="f-sito" name="sito_web" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <p class="form__privacy">
+      Inviando la richiesta dichiari di aver letto l’<a href="/privacy-policy/">informativa privacy</a>.
+    </p>
+
+    <label class="checkbox">
+      <input type="checkbox" name="marketing" value="si" />
+      <span>
+        Facoltativo: voglio ricevere comunicazioni su promozioni e novità di {site.nome}. Puoi revocare il consenso quando vuoi.
+      </span>
+    </label>
+
+    <div class="btn-row">
+      <button class="btn btn--lg" type="submit">
+        <Icon name="arrow-right" /> Invia la pre-iscrizione
+      </button>
+    </div>
+
+    <div class="form__status" data-form-status role="status" aria-live="polite" tabindex="-1" hidden></div>
+  </form>
+</div>
+
+<style>
+  .form-card {
+    border-radius: var(--radius-xl);
+    padding: clamp(1.25rem, 1rem + 2vw, 2.75rem);
+  }
+  .form-card__title {
+    font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+  }
+  .form-card__intro {
+    margin: var(--space-3) 0 var(--space-6);
+  }
+  .form {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .form__row {
+    display: grid;
+    gap: var(--space-5);
+  }
+  .form__hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .form__privacy {
+    font-size: var(--fs-small);
+  }
+  .form__summary {
+    padding: var(--space-4) var(--space-5);
+    border: 2px solid #8a1c14;
+    border-radius: var(--radius-md);
+    background: #fdecea;
+    color: #5c130d;
+  }
+  .form__summary ul {
+    margin: var(--space-2) 0 0;
+    padding-left: 1.2em;
+  }
+  .form__summary a {
+    color: #5c130d;
+  }
+  .form__status {
+    padding: var(--space-4) var(--space-5);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    background: var(--lime);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .form__status[data-type='error'] {
+    background: #fdecea;
+    border-color: #8a1c14;
+    color: #5c130d;
+  }
+  @media (min-width: 640px) {
+    .form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-form]');
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]')!;
+    const summary = form.querySelector<HTMLElement>('[data-form-summary]')!;
+    const summaryList = form.querySelector<HTMLUListElement>('[data-form-summary-list]')!;
+
+    const rules: Record<string, (v: string) => string> = {
+      nome: (v) => (v.trim().length < 2 ? 'Scrivi nome e cognome.' : ''),
+      telefono: (v) =>
+        !v.trim()
+          ? 'Scrivi il tuo numero di telefono.'
+          : !/^\+?[\d\s./-]{6,20}$/.test(v.trim())
+            ? 'Il numero non sembra valido: usa solo cifre, spazi e un eventuale + iniziale.'
+            : '',
+      patente: (v) => (!v ? 'Scegli una patente o un servizio.' : ''),
+      sede: (v) => (!v ? 'Scegli la sede.' : ''),
+    };
+
+    const setError = (name: string, msg: string) => {
+      const field = form.elements.namedItem(name) as HTMLInputElement;
+      const err = form.querySelector<HTMLElement>(`#${field.id}-err`);
+      field.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      if (err) {
+        err.textContent = msg;
+        err.hidden = !msg;
+      }
+    };
+
+    const show = (msg: string, type: 'ok' | 'error' = 'ok') => {
+      status.textContent = msg;
+      status.dataset.type = type;
+      status.hidden = false;
+      status.focus();
+    };
+
+    // Validazione al cambio del campo, dopo il primo tentativo
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (rules[t.name] && t.getAttribute('aria-invalid') === 'true') setError(t.name, rules[t.name](t.value));
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.hidden = true;
+      const fd = new FormData(form);
+
+      // Honeypot compilato: fingiamo il successo senza inviare nulla
+      if (String(fd.get('sito_web') || '')) {
+        form.reset();
+        show('Grazie! Ti ricontattiamo al più presto.');
+        return;
+      }
+
+      const errors: [string, string][] = [];
+      Object.entries(rules).forEach(([name, rule]) => {
+        const msg = rule(String(fd.get(name) ?? ''));
+        setError(name, msg);
+        if (msg) errors.push([name, msg]);
+      });
+
+      if (errors.length) {
+        summaryList.replaceChildren(
+          ...errors.map(([name, msg]) => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            const field = form.elements.namedItem(name) as HTMLElement;
+            a.href = `#${field.id}`;
+            a.textContent = msg;
+            a.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              field.focus();
+            });
+            li.append(a);
+            return li;
+          }),
+        );
+        summary.hidden = false;
+        summary.focus();
+        return;
+      }
+      summary.hidden = true;
+
+      if (form.dataset.demo === 'true') {
+        show('Anteprima: il modulo sarà attivo dopo la pubblicazione.');
+        return;
+      }
+
+      fd.delete('sito_web');
+      const endpoint = form.dataset.endpoint;
+      if (endpoint) {
+        try {
+          const res = await fetch(endpoint, { method: 'POST', body: fd, headers: { Accept: 'application/json' } });
+          if (!res.ok) throw new Error(String(res.status));
+          form.reset();
+          show('Richiesta inviata! Ti ricontattiamo al più presto.');
+        } catch {
+          show('Invio non riuscito. Riprova tra poco oppure chiamaci.', 'error');
+        }
+        return;
+      }
+
+      const text = [
+        'Ciao! Vorrei pre-iscrivermi.',
+        `Nome: ${fd.get('nome')}`,
+        `Telefono: ${fd.get('telefono')}`,
+        `Patente/servizio: ${fd.get('patente')}`,
+        `Sede: ${fd.get('sede')}`,
+        fd.get('messaggio') ? `Messaggio: ${fd.get('messaggio')}` : '',
+        `Consenso marketing: ${fd.get('marketing') ? 'sì' : 'no'}`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+      const wa = form.dataset.waNumber;
+      const url = wa
+        ? `https://wa.me/${wa}?text=${encodeURIComponent(text)}`
+        : `mailto:${form.dataset.email}?subject=${encodeURIComponent('Pre-iscrizione')}&body=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener');
+      show(wa ? 'Ti abbiamo aperto WhatsApp con i dati già scritti: premi invio per mandarceli.' : 'Ti abbiamo aperto l’email con i dati già scritti.');
+    });
+  }
+</script>

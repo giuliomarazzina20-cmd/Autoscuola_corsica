@@ -1,0 +1,207 @@
+---
+/** Card grandi per categoria: colore per gruppo, icona propria, prezzo "da" o "Preventivo" */
+import Icon from './Icon.astro';
+import Todo from './Todo.astro';
+import { site, type Patente } from '../data/site';
+
+interface Props {
+  patenti?: Patente[];
+  /** home: titolo completo e CTA · list: solo griglia · others: "Ti serve un'altra patente?" */
+  variant?: 'home' | 'list' | 'others';
+  exclude?: string;
+}
+const { patenti = site.patenti, variant = 'home', exclude } = Astro.props;
+const heading = variant === 'home';
+const list = patenti.filter((p) => p.slug !== exclude);
+
+const colore: Record<string, string> = {
+  moto: 'card--lime',
+  auto: '',
+  camion: 'card--forest',
+  autobus: 'card--ink',
+};
+const prezzo = (slug: string) => {
+  if (site.prezzi.soloPreventivo) return null;
+  return site.prezzi.patenti.find((p) => p.patente === slug)?.da ?? null;
+};
+const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+---
+
+<section class="section bg-cream" id={variant === 'home' ? 'patenti' : undefined} aria-labelledby="patenti-title">
+  <div class="container">
+    {
+      heading && (
+        <div class="section__head">
+          <p class="eyebrow muted">Dalle due ruote all'autobus</p>
+          <h2 class="h2" id="patenti-title">
+            Scegli la tua <span class="hl">patente</span>
+          </h2>
+          <p class="lead muted">Tocca la categoria che ti serve: requisiti, percorso e costi, spiegati senza burocratese.</p>
+          {!site.patentiConfermate && (
+            <p>
+              <Todo note="elenco patenti da confermare con il titolare" />
+            </p>
+          )}
+        </div>
+      )
+    }
+    {variant === 'list' && <h2 class="sr-only" id="patenti-title">Tutte le patenti</h2>}
+    {
+      variant === 'others' && (
+        <div class="section__head">
+          <h2 class="h2" id="patenti-title">
+            Ti serve <span class="hl">un'altra</span> patente?
+          </h2>
+        </div>
+      )
+    }
+
+    <ul class="pgrid" role="list">
+      {
+        list.map((p) => {
+          const da = prezzo(p.slug);
+          return (
+            <li class:list={['card', 'card--hover', 'pcard', colore[p.gruppo]]}>
+              <div class="pcard__top">
+                <span class="pcard__code" aria-hidden="true">
+                  {p.codice}
+                </span>
+                <span class="pcard__icon">
+                  <Icon name={p.icona} />
+                </span>
+              </div>
+              <h3 class="pcard__title">
+                <a class="card-link" href={`/patenti/${p.slug}/`}>
+                  Patente {p.codice}
+                </a>
+              </h3>
+              <p class="pcard__veicolo">{p.veicolo}</p>
+              <p class="pcard__foot">
+                <span class="pill pcard__price">{da ? <>da {euro(da)}</> : 'Preventivo'}</span>
+                <span class="pcard__go" aria-hidden="true">
+                  <Icon name="arrow-right" />
+                </span>
+              </p>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    {
+      heading && (
+        <p class="pgrid__cta">
+          <a class="btn btn--ink btn--lg" href="/preventivo/">
+            Scopri quanto ti costa <Icon name="arrow-right" />
+          </a>
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .pgrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.875rem, 0.5rem + 1.5vw, 1.75rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: clamp(1rem, 0.8rem + 1vw, 1.75rem);
+    border-radius: var(--radius-lg);
+  }
+  .pcard__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  .pcard__code {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3rem, 2.2rem + 3.5vw, 5.25rem);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+  }
+  .pcard__icon {
+    display: grid;
+    place-items: center;
+    width: clamp(44px, 36px + 2vw, 60px);
+    height: clamp(44px, 36px + 2vw, 60px);
+    border: var(--border-w) solid currentColor;
+    border-radius: 50%;
+    transform: rotate(-8deg);
+  }
+  .pcard__icon :global(.icon) {
+    width: 62%;
+    height: 62%;
+  }
+  .pcard__title {
+    margin-top: auto;
+    padding-top: var(--space-4);
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  }
+  .pcard__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .pcard__veicolo {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    line-height: 1.3;
+    min-height: 2.6em;
+  }
+  .pcard__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+  .pcard__price {
+    font-size: var(--fs-xs);
+    padding: 0.25em 0.7em;
+  }
+  .pcard__go {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--lime);
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .card--ink .pcard__go {
+    background: var(--lime);
+    color: var(--ink);
+  }
+  .card--forest .pcard__go {
+    background: var(--white);
+    color: var(--ink);
+  }
+  .pcard__go :global(.icon) {
+    width: 20px;
+    height: 20px;
+  }
+  @media (hover: hover) {
+    .pcard:hover .pcard__go {
+      transform: translateX(4px) rotate(-12deg);
+    }
+  }
+  .pgrid__cta {
+    margin-top: var(--space-7);
+    text-align: center;
+  }
+  @media (min-width: 900px) {
+    .pgrid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,80 @@
+---
+/**
+ * Logo. Se site.logo è compilato usa il file reale,
+ * altrimenti un logotipo tipografico con il solo nome commerciale.
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+interface Props {
+  inverse?: boolean;
+}
+const { inverse = false } = Astro.props;
+// "Autoscuola Nome" → riga piccola "Autoscuola" + nome in grande
+const m = /^(autoscuola)\s+(.+)$/i.exec(site.nome);
+const piccolo = m ? m[1] : '';
+const grande = m ? m[2] : site.nome;
+---
+
+<a href="/" class:list={['logo', inverse && 'logo--inverse']} aria-label={`${site.nome}, torna alla home`}>
+  {
+    site.logo ? (
+      <img src={site.logo} alt="" width="160" height="40" />
+    ) : (
+      <>
+        <span class="logo__mark">
+          <Icon name="steering" />
+        </span>
+        <span class="logo__text">
+          {piccolo && <span class="logo__small">{piccolo}</span>}
+          <span class="logo__big">{grande}</span>
+        </span>
+      </>
+    )
+  }
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ink);
+    text-decoration: none;
+    min-height: var(--tap);
+  }
+  .logo--inverse {
+    color: var(--white);
+  }
+  .logo__mark {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    background: var(--lime);
+    color: var(--ink);
+    border: var(--border);
+    border-radius: 12px;
+    transform: rotate(-6deg);
+  }
+  .logo__mark :global(.icon) {
+    width: 26px;
+    height: 26px;
+  }
+  .logo__text {
+    display: grid;
+    line-height: 0.9;
+  }
+  .logo__small {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .logo__big {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+  }
+</style>

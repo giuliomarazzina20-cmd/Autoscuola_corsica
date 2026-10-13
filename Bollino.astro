@@ -1,0 +1,103 @@
+---
+/**
+ * Bollino circolare ruotato con un dato vero (anno di fondazione).
+ * Il testo sul bordo è decorativo: il dato è leggibile dagli screen reader.
+ */
+import { site } from '../data/site';
+
+interface Props {
+  class?: string;
+  color?: 'coral' | 'lime' | 'cream';
+  top?: string;
+  big?: string;
+  ring?: string;
+}
+const {
+  class: className = '',
+  color = 'coral',
+  top = 'dal',
+  big = String(site.annoFondazione),
+  ring = `${site.nome} · ${site.citta} · ${site.zona} · `,
+} = Astro.props;
+const id = `ring-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class:list={['bollino', `bollino--${color}`, className]}>
+  <span class="sr-only">Attiva {top} {big}</span>
+  <svg viewBox="0 0 160 160" aria-hidden="true" focusable="false">
+    <defs>
+      <path id={id} d="M80 80m-60 0a60 60 0 1 1 120 0a60 60 0 1 1-120 0"></path>
+    </defs>
+    <circle cx="80" cy="80" r="77" class="bollino__bg"></circle>
+    <circle cx="80" cy="80" r="44" class="bollino__inner"></circle>
+    <g class="bollino__ring">
+      <text><textPath href={`#${id}`} textLength="372">{ring.toUpperCase()}</textPath></text>
+    </g>
+    <text x="80" y="70" text-anchor="middle" class="bollino__top">{top.toUpperCase()}</text>
+    <text x="80" y="100" text-anchor="middle" class="bollino__big">{big}</text>
+  </svg>
+</div>
+
+<style>
+  .bollino {
+    --size: clamp(104px, 80px + 7vw, 168px);
+    width: var(--size);
+    height: var(--size);
+    flex: none;
+    transform: rotate(-14deg);
+    filter: drop-shadow(4px 4px 0 var(--ink));
+  }
+  .bollino svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .bollino__bg {
+    fill: var(--coral);
+    stroke: var(--ink);
+    stroke-width: 3;
+  }
+  .bollino--lime .bollino__bg {
+    fill: var(--lime);
+  }
+  .bollino--cream .bollino__bg {
+    fill: var(--cream);
+  }
+  .bollino__inner {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-dasharray: 4 5;
+  }
+  .bollino__ring {
+    transform-origin: 80px 80px;
+    animation: bollino-spin 4.5s var(--ease-out) 0.3s 1 both;
+  }
+  .bollino text {
+    fill: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+  }
+  .bollino__ring text {
+    font-size: 15px;
+    letter-spacing: 0.06em;
+  }
+  .bollino__top {
+    font-size: 15px;
+    letter-spacing: 0.12em;
+  }
+  .bollino__big {
+    font-size: 34px;
+    letter-spacing: -0.02em;
+  }
+  @keyframes bollino-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bollino__ring {
+      animation: none;
+    }
+  }
+</style>

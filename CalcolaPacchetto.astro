@@ -1,0 +1,110 @@
+---
+/**
+ * Strumento 4 · "Calcola il tuo pacchetto"
+ * Solo se site.prezzi contiene prezzi (soloPreventivo: false e almeno una patente con prezzo).
+ */
+import Icon from '../Icon.astro';
+import { site, hasWhatsapp, TODO } from '../../data/site';
+
+interface Props {
+  bg?: 'cream' | 'lime' | 'white';
+}
+const { bg = 'cream' } = Astro.props;
+const prezzi = site.prezzi.patenti.filter((p) => p.da > 0 && site.patenti.some((x) => x.slug === p.patente));
+const show = !site.prezzi.soloPreventivo && prezzi.length > 0;
+const codice = (slug: string) => site.patenti.find((p) => p.slug === slug)?.codice ?? slug;
+const euro = (n: number) => n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+---
+
+{
+  show && (
+    <section class:list={['section', `bg-${bg}`, 'tool']} id="calcola" aria-labelledby="calc-title">
+      <div class="container">
+        <div class="section__head">
+          <p class="eyebrow muted">
+            <Icon name="euro" /> Strumento
+          </p>
+          <h2 class="h2" id="calc-title">
+            Calcola il tuo <span class="hl">pacchetto</span>
+          </h2>
+        </div>
+        <form class="card tool__card" data-calc data-wa-number={site.whatsapp}>
+          <fieldset class="choices">
+            <legend>Quale patente?</legend>
+            {prezzi.map((p, i) => (
+              <label class="choice">
+                <input type="radio" name="patente" value={p.patente} data-price={p.da} data-label={`Patente ${codice(p.patente)}`} checked={i === 0} />
+                Patente {codice(p.patente)} · da {euro(p.da)}
+              </label>
+            ))}
+          </fieldset>
+          {site.prezzi.extra.length > 0 && (
+            <fieldset class="choices">
+              <legend>Extra</legend>
+              {site.prezzi.extra.map((x) => (
+                <label class="choice">
+                  <input type="checkbox" name="extra" value={x.id} data-price={x.prezzo} data-label={x.nome} />
+                  {x.nome} · +{euro(x.prezzo)}
+                </label>
+              ))}
+            </fieldset>
+          )}
+          <div class="tool__result" aria-live="polite">
+            <ul class="calc__lines" role="list" data-calc-lines />
+            <p class="tool__big" data-calc-total />
+          </div>
+          <p class="tool__note">
+            <Icon name="info" /> Totale indicativo: la conferma arriva dalla segreteria.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn--ink" href="#whatsapp" data-calc-send data-wa={hasWhatsapp ? undefined : 'placeholder'}>
+              <Icon name="chat" />
+              <span class="btn__label">
+                <span>Chiedi conferma su WhatsApp</span>
+                {!hasWhatsapp && <span class="btn__todo">{TODO}</span>}
+              </span>
+            </a>
+          </div>
+        </form>
+      </div>
+    </section>
+  )
+}
+
+<script>
+  import { setWaLink } from '../../scripts/wa';
+
+  const euro = (n: number) =>
+    n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+
+  document.querySelectorAll<HTMLFormElement>('[data-calc]').forEach((form) => {
+    const lines = form.querySelector<HTMLUListElement>('[data-calc-lines]')!;
+    const total = form.querySelector<HTMLElement>('[data-calc-total]')!;
+    const send = form.querySelector<HTMLAnchorElement>('[data-calc-send]')!;
+    const update = () => {
+      const picked = Array.from(form.querySelectorAll<HTMLInputElement>('input:checked'));
+      let sum = 0;
+      const rows = picked.map((i) => {
+        const p = Number(i.dataset.price) || 0;
+        sum += p;
+        return `${i.dataset.label}: ${euro(p)}`;
+      });
+      lines.replaceChildren(
+        ...rows.map((r) => {
+          const li = document.createElement('li');
+          li.textContent = r;
+          return li;
+        }),
+      );
+      total.textContent = `Totale indicativo: ${euro(sum)}`;
+      setWaLink(
+        send,
+        form.dataset.waNumber ?? '',
+        `Ciao! Vorrei conferma per questo pacchetto:\n${rows.join('\n')}\nTotale indicativo: ${euro(sum)}`,
+      );
+    };
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  });
+</script>

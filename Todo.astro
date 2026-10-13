@@ -1,0 +1,12 @@
+---
+/** Segnaposto visibile per i dati mancanti o da confermare */
+import { TODO } from '../data/site';
+
+interface Props {
+  note?: string;
+}
+const { note } = Astro.props;
+const text = note ? `${TODO.slice(0, -1)}: ${note}]` : TODO;
+---
+
+<span class="todo">{text}</span>

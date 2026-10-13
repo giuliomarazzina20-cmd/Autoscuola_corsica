@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SedeCard from '../../components/SedeCard.astro';
+import PhotoPh from '../../components/PhotoPh.astro';
+import ClosingCta from '../../components/ClosingCta.astro';
+import Icon from '../../components/Icon.astro';
+import { site, type Sede } from '../../data/site';
+import { sedeSchema } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return site.sedi.map((s) => ({ params: { slug: s.slug }, props: { sede: s } }));
+}
+const { sede } = Astro.props as { sede: Sede };
+const via = sede.indirizzo.replace(/\s\d+.*$/, '');
+const viaHl = via.split(' ').pop() ?? via;
+---
+
+<BaseLayout
+  title={`${sede.nome}, ${sede.citta}`}
+  fullTitle={`Autoscuola in ${sede.indirizzo}, ${sede.citta} ${sede.zona} | ${site.nome}`}
+  description={`${site.nome} in ${sede.indirizzo}, ${sede.citta} (${sede.zona}): orari della segreteria, come arrivare e contatti. Per ${sede.quartieri.join(', ')}.`}
+  jsonLd={[sedeSchema(sede)]}
+>
+  <PageHero
+    eyebrow={`${sede.zona} · ${site.citta}`}
+    icon="pin"
+    title={`Ci trovi in ${via.charAt(0).toLowerCase() + via.slice(1)}`}
+    hl={viaHl}
+    lead={`${sede.indirizzo}, ${sede.citta}. Per chi vive tra ${sede.quartieri.slice(0, -1).join(', ')} e ${sede.quartieri.at(-1)}.`}
+    bg="ink"
+    bollino
+  />
+
+  <section class="section bg-lime" aria-label="Informazioni sulla sede">
+    <div class="container">
+      <SedeCard sede={sede} link={false} headingLevel="h2" />
+    </div>
+  </section>
+
+  <section class="section bg-cream" aria-labelledby="zona-title">
+    <div class="container zona">
+      <div class="zona__text">
+        <p class="eyebrow muted">La zona</p>
+        <h2 class="h2" id="zona-title">La tua autoscuola in <span class="hl">{sede.zona.toLowerCase()}</span></h2>
+        <p class="lead">Seguiamo chi abita, studia o lavora qui:</p>
+        <ul class="zona__list" role="list">
+          {
+            sede.quartieri.map((q) => (
+              <li class="pill pill--lime">
+                <Icon name="pin" /> {q}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <PhotoPh subject={`ingresso della sede di ${sede.indirizzo}`} bg="white" ratio="4 / 3" />
+    </div>
+  </section>
+
+  <ClosingCta title="Passa a trovarci." hl="trovarci" />
+</BaseLayout>
+
+<style>
+  .zona {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+  .zona__text {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+  .zona__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .zona__list :global(.icon) {
+    width: 1.1em;
+    height: 1.1em;
+  }
+  @media (min-width: 900px) {
+    .zona {
+      grid-template-columns: 1.1fr 1fr;
+    }
+  }
+</style>
